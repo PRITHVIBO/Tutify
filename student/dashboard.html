@@ -27,10 +27,10 @@
 
             <h3>Navigation</h3>
             <nav>
-                <a href="dashboard.html" class="active">📊 Dashboard</a>
-                <a href="progress.html">📈 My Progress</a>
-                <a href="#" onclick="showSection('bookings')">📅 My Bookings</a>
-                <a href="#" onclick="showSection('settings')">⚙️ Settings</a>
+                <a href="#" onclick="showSection('dashboard')" class="active" id="nav-dashboard">📊 Dashboard</a>
+                <a href="progress.html" id="nav-progress">📈 My Progress</a>
+                <a href="#" onclick="showSection('bookings')" id="nav-bookings">📅 My Bookings</a>
+                <a href="#" onclick="showSection('settings')" id="nav-settings">⚙️ Settings</a>
             </nav>
 
             <button class="logout-btn" onclick="logout()">🚪 Logout</button>
@@ -66,23 +66,107 @@
                 <h2>Find Tutors</h2>
                 <div class="filter-section">
                     <div class="filter-group">
-                        <select id="subjectFilter" onchange="filterTutors()">
-                            <option value="">All Subjects</option>
-                            <option value="Mathematics">Mathematics</option>
-                            <option value="Physics">Physics</option>
-                            <option value="Chemistry">Chemistry</option>
-                            <option value="Biology">Biology</option>
-                            <option value="English">English</option>
-                            <option value="Computer Science">Computer Science</option>
-                            <option value="History">History</option>
+                        <select id="subjectFilter" onchange="filterTutors()" class="filter-dropdown">
+                            <option value="">🎓 All Subjects</option>
+                            <option value="Mathematics">📐 Mathematics</option>
+                            <option value="Physics">⚛️ Physics</option>
+                            <option value="Chemistry">🧪 Chemistry</option>
+                            <option value="Biology">🔬 Biology</option>
+                            <option value="English">📖 English</option>
+                            <option value="Computer Science">💻 Computer Science</option>
+                            <option value="History">📚 History</option>
+                        </select>
+                        <select id="ratingFilter" onchange="filterTutors()" class="filter-dropdown">
+                            <option value="">⭐ All Ratings</option>
+                            <option value="4.5">4.5+ Stars</option>
+                            <option value="4.0">4.0+ Stars</option>
+                            <option value="3.5">3.5+ Stars</option>
+                            <option value="3.0">3.0+ Stars</option>
+                        </select>
+                        <select id="availabilityFilter" onchange="filterTutors()" class="filter-dropdown">
+                            <option value="">📍 Any Status</option>
+                            <option value="Available">✅ Available</option>
+                            <option value="Busy">⏰ Busy</option>
                         </select>
                         <input type="text" id="searchTutor" placeholder="🔍 Search tutor by name..."
-                            oninput="filterTutors()">
+                            class="filter-input" oninput="filterTutors()">
                     </div>
                 </div>
 
                 <div class="tutor-grid" id="tutorGrid">
                     <!-- Tutors will be loaded here dynamically -->
+                </div>
+            </section>
+
+            <!-- Bookings Section -->
+            <section id="bookings-section" style="display: none;">
+                <h2>My Bookings</h2>
+                <div class="bookings-container">
+                    <div class="booking-tabs">
+                        <button class="tab-btn active" onclick="showBookingTab('upcoming', this)">📅 Upcoming</button>
+                        <button class="tab-btn" onclick="showBookingTab('completed', this)">✅ Completed</button>
+                        <button class="tab-btn" onclick="showBookingTab('cancelled', this)">❌ Cancelled</button>
+                    </div>
+                    <div id="bookings-list" class="bookings-list">
+                        <!-- Bookings will load here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" style="display: none;">
+                <h2>Settings & Profile</h2>
+                <div class="settings-container">
+                    <div class="settings-card">
+                        <h3>👤 Profile Information</h3>
+                        <div class="setting-item">
+                            <label>Full Name:</label>
+                            <input type="text" id="settingsName" placeholder="Your name" class="setting-input">
+                        </div>
+                        <div class="setting-item">
+                            <label>Email:</label>
+                            <input type="email" id="settingsEmail" placeholder="Your email" class="setting-input"
+                                disabled>
+                        </div>
+                        <div class="setting-item">
+                            <label>Phone:</label>
+                            <input type="tel" id="settingsPhone" placeholder="Your phone number" class="setting-input">
+                        </div>
+                        <button class="btn-save" onclick="saveProfileSettings()">💾 Save Changes</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>🔐 Change Password</h3>
+                        <div class="setting-item">
+                            <label>Current Password:</label>
+                            <input type="password" id="currentPassword" placeholder="Enter current password"
+                                class="setting-input">
+                        </div>
+                        <div class="setting-item">
+                            <label>New Password:</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password"
+                                class="setting-input">
+                        </div>
+                        <div class="setting-item">
+                            <label>Confirm Password:</label>
+                            <input type="password" id="confirmPassword" placeholder="Confirm new password"
+                                class="setting-input">
+                        </div>
+                        <button class="btn-save" onclick="changePassword()">🔐 Change Password</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>📧 Preferences</h3>
+                        <div class="preference-item">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <label for="emailNotifications">Email notifications for new tutors</label>
+                        </div>
+                        <div class="preference-item">
+                            <input type="checkbox" id="smsNotifications" checked>
+                            <label for="smsNotifications">SMS alerts for session reminders</label>
+                        </div>
+                        <button class="btn-save" onclick="savePreferences()">✅ Save Preferences</button>
+                    </div>
                 </div>
             </section>
         </main>

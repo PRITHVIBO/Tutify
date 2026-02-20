@@ -27,11 +27,10 @@
 
             <h3>Navigation</h3>
             <nav>
-                <a href="dashboard.html" class="active">📊 Dashboard</a>
-                <a href="bookings.html">📅 Session Bookings</a>
-                <a href="#" onclick="showSection('students')">👥 My Students</a>
-                <a href="#" onclick="showSection('schedule')">🕒 Schedule</a>
-                <a href="#" onclick="showSection('settings')">⚙️ Settings</a>
+                <a href="#" onclick="showSection('dashboard')" class="active" id="nav-dashboard">📊 Dashboard</a>
+                <a href="#" onclick="showSection('bookings')" id="nav-bookings">📅 Session Bookings</a>
+                <a href="#" onclick="showSection('students')" id="nav-students">👥 My Students</a>
+                <a href="#" onclick="showSection('settings')" id="nav-settings">⚙️ Settings</a>
             </nav>
 
             <button class="logout-btn" onclick="logout()">🚪 Logout</button>
@@ -56,36 +55,126 @@
                 <button class="edit-profile-btn" onclick="editProfile()">✏️ Edit Profile</button>
             </div>
 
-            <h2>Dashboard Overview</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <p>👥 Total Students</p>
-                    <h2 id="totalStudents">24</h2>
-                    <p>Active students</p>
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard-section">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p>👥 Total Students</p>
+                        <h2 id="totalStudents">24</h2>
+                        <p>Active students</p>
+                    </div>
+                    <div class="stat-card">
+                        <p>📚 Total Sessions</p>
+                        <h2 id="totalSessions">150</h2>
+                        <p>Sessions conducted</p>
+                    </div>
+                    <div class="stat-card">
+                        <p>⏰ This Week</p>
+                        <h2 id="weekSessions">8</h2>
+                        <p>Scheduled sessions</p>
+                    </div>
+                    <div class="stat-card">
+                        <p>⭐ Average Rating</p>
+                        <h2 id="avgRating">4.8</h2>
+                        <p>Student feedback</p>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <p>📚 Total Sessions</p>
-                    <h2 id="totalSessions">150</h2>
-                    <p>Sessions conducted</p>
-                </div>
-                <div class="stat-card">
-                    <p>⏰ This Week</p>
-                    <h2 id="weekSessions">8</h2>
-                    <p>Scheduled sessions</p>
-                </div>
-                <div class="stat-card">
-                    <p>⭐ Average Rating</p>
-                    <h2 id="avgRating">4.8</h2>
-                    <p>Student feedback</p>
-                </div>
-            </div>
 
-            <div class="recent-students">
-                <h2>Recent Students</h2>
-                <div class="student-list" id="studentList">
-                    <!-- Students will be loaded here -->
+                <div class="recent-students">
+                    <h2>Recent Students</h2>
+                    <div class="student-list" id="studentList">
+                        <!-- Students will be loaded here -->
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- BOOKINGS SECTION -->
+            <section id="bookings-section" style="display: none;">
+                <h2>Session Bookings</h2>
+                <div class="bookings-container">
+                    <div class="booking-tabs">
+                        <button class="tab-btn active" onclick="showBookingTab('upcoming', this)">📅 Upcoming</button>
+                        <button class="tab-btn" onclick="showBookingTab('completed', this)">✅ Completed</button>
+                        <button class="tab-btn" onclick="showBookingTab('cancelled', this)">❌ Cancelled</button>
+                    </div>
+                    <div class="bookings-list" id="bookings-list">
+                        <!-- Bookings will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS SECTION -->
+            <section id="settings-section" style="display: none;">
+                <h2>Settings</h2>
+                <div class="settings-container">
+                    <div class="settings-card">
+                        <h3>👤 Profile Information</h3>
+                        <div class="setting-item">
+                            <label>Full Name</label>
+                            <input type="text" class="setting-input" id="settingName" placeholder="Your full name">
+                        </div>
+                        <div class="setting-item">
+                            <label>Specializations</label>
+                            <input type="text" class="setting-input" id="settingSpecialties"
+                                placeholder="e.g., Mathematics, Science">
+                        </div>
+                        <div class="setting-item">
+                            <label>Bio</label>
+                            <textarea class="setting-input" id="settingBio" placeholder="Tell students about yourself"
+                                rows="3"></textarea>
+                        </div>
+                        <div class="setting-item">
+                            <label>Hourly Rate ($)</label>
+                            <input type="number" class="setting-input" id="settingRate" placeholder="30" min="5">
+                        </div>
+                        <button class="btn-save" onclick="saveProfileSettings()">💾 Save Profile</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>🔒 Change Password</h3>
+                        <div class="setting-item">
+                            <label>Current Password</label>
+                            <input type="password" class="setting-input" id="currentPassword"
+                                placeholder="Enter current password">
+                        </div>
+                        <div class="setting-item">
+                            <label>New Password</label>
+                            <input type="password" class="setting-input" id="newPassword"
+                                placeholder="Enter new password">
+                        </div>
+                        <div class="setting-item">
+                            <label>Confirm Password</label>
+                            <input type="password" class="setting-input" id="confirmPassword"
+                                placeholder="Confirm new password">
+                        </div>
+                        <button class="btn-save" onclick="changePassword()">🔐 Update Password</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>🔔 Notification Preferences</h3>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="emailNotifications" checked>
+                                Receive email notifications for new bookings
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="reminderNotifications" checked>
+                                Send me session reminders 24 hours before
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="feedbackNotifications" checked>
+                                Notify me of new student feedback
+                            </label>
+                        </div>
+                        <button class="btn-save" onclick="savePreferences()">✅ Save Preferences</button>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 

@@ -39,12 +39,12 @@ function setCurrentUser(userData) {
 }
 
 /**
- * Clear user session and redirect to login
+ * Clear user session and redirect to home
  */
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('user');
-        window.location.href = '/login.html';
+        window.location.href = '../index.html';
     }
 }
 
@@ -639,11 +639,15 @@ function displayTutors(tutors) {
 function filterTutors() {
     const subject = document.getElementById('subjectFilter').value.toLowerCase();
     const search = document.getElementById('searchTutor').value.toLowerCase();
+    const minRating = parseFloat(document.getElementById('ratingFilter').value) || 0;
+    const availability = document.getElementById('availabilityFilter').value.toLowerCase();
 
     const filtered = window.allTutors.filter(tutor => {
         const matchesSubject = !subject || tutor.subject.toLowerCase() === subject;
         const matchesSearch = !search || tutor.name.toLowerCase().includes(search);
-        return matchesSubject && matchesSearch;
+        const matchesRating = tutor.rating >= minRating;
+        const matchesAvailability = !availability || tutor.availability.toLowerCase() === availability;
+        return matchesSubject && matchesSearch && matchesRating && matchesAvailability;
     });
 
     displayTutors(filtered);
@@ -660,7 +664,196 @@ function bookSessionNow(tutorId, tutorName) {
 }
 
 function showSection(section) {
-    alert(`${section.charAt(0).toUpperCase() + section.slice(1)} section - Coming soon!`);
+    // Hide all sections
+    const sections = ['dashboard', 'bookings', 'settings'];
+    sections.forEach(s => {
+        const el = document.getElementById(s + '-section');
+        if (el) el.style.display = 'none';
+    });
+
+    // Update active nav link
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + section);
+    if (navEl) navEl.classList.add('active');
+
+    // Show requested section
+    if (section === 'bookings') {
+        document.getElementById('bookings-section').style.display = 'block';
+        loadBookings();
+    } else if (section === 'settings') {
+        document.getElementById('settings-section').style.display = 'block';
+        loadSettings();
+    } else {
+        const dashEl = document.getElementById('dashboard-section');
+        if (dashEl) dashEl.style.display = 'block';
+    }
+    return false;
+}
+
+function showBookingTab(tab, btnEl) {
+    // Update active tab button
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach(t => t.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    loadBookingsByTab(tab);
+}
+
+function loadBookings() {
+    const bookingsList = document.getElementById('bookings-list');
+    const bookings = [
+        { id: 1, tutor: 'Dr. Sarah Johnson', subject: 'Mathematics', date: '2026-02-25', time: '2:00 PM', status: 'upcoming' },
+        { id: 2, tutor: 'Prof. Michael Chen', subject: 'Physics', date: '2026-02-18', time: '3:30 PM', status: 'completed' },
+        { id: 3, tutor: 'Ms. Emily Davis', subject: 'Chemistry', date: '2026-02-10', time: '1:00 PM', status: 'cancelled' }
+    ];
+
+    loadBookingsByTab('upcoming');
+}
+
+function loadBookingsByTab(tab) {
+    const bookingsList = document.getElementById('bookings-list');
+    if (!bookingsList) return;
+
+    const userData = getCurrentUser();
+    const isTutor = userData && userData.role === 'tutor';
+
+    const studentBookings = [
+        { id: 1, person: 'Dr. Sarah Johnson', subject: 'Mathematics', date: '2026-02-25', time: '2:00 PM', status: 'upcoming', duration: '1 hour', rate: '$40' },
+        { id: 2, person: 'Prof. Michael Chen', subject: 'Physics', date: '2026-02-18', time: '3:30 PM', status: 'completed', duration: '1.5 hours', rate: '$50' },
+        { id: 3, person: 'Ms. Emily Davis', subject: 'Chemistry', date: '2026-02-10', time: '1:00 PM', status: 'cancelled', duration: '1 hour', rate: '$35' }
+    ];
+    const tutorBookings = [
+        { id: 1, person: 'Alex Turner', subject: 'Mathematics', date: '2026-02-25', time: '2:00 PM', status: 'upcoming', duration: '1 hour', rate: '$40' },
+        { id: 2, person: 'Jamie Lee', subject: 'Statistics', date: '2026-02-18', time: '3:30 PM', status: 'completed', duration: '1.5 hours', rate: '$50' },
+        { id: 3, person: 'Sam Rivera', subject: 'Calculus', date: '2026-02-10', time: '1:00 PM', status: 'cancelled', duration: '1 hour', rate: '$40' }
+    ];
+
+    const allBookings = isTutor ? tutorBookings : studentBookings;
+    const personLabel = isTutor ? 'Student' : 'Tutor';
+    const filtered = allBookings.filter(b => b.status === tab);
+    bookingsList.innerHTML = '';
+
+    if (filtered.length === 0) {
+        bookingsList.innerHTML = `<div class="empty-state"><p>📭 No ${tab} sessions found.</p></div>`;
+        return;
+    }
+
+    filtered.forEach(booking => {
+        const bookingDiv = document.createElement('div');
+        bookingDiv.className = 'booking-card';
+        bookingDiv.innerHTML = `
+            <div class="booking-card-header">
+                <div class="booking-info">
+                    <h4>📚 ${booking.subject}</h4>
+                    <p><strong>${personLabel}:</strong> ${booking.person}</p>
+                    <p><strong>📅 Date:</strong> ${booking.date} at ${booking.time}</p>
+                    <p><strong>⏱️ Duration:</strong> ${booking.duration} &nbsp;|&nbsp; <strong>💰 Rate:</strong> ${booking.rate}/hr</p>
+                </div>
+                <span class="status-badge status-${booking.status}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
+            </div>
+            ${booking.status === 'upcoming' ? `
+                <div class="booking-actions">
+                    <button class="btn-primary" onclick="alert('Reschedule request sent!')">📅 Reschedule</button>
+                    <button class="btn-danger" onclick="cancelBooking(${booking.id})">❌ Cancel</button>
+                </div>
+            ` : booking.status === 'completed' ? `
+                <div class="booking-actions">
+                    <button class="btn-primary" onclick="alert('Review submitted!')">⭐ Leave Review</button>
+                </div>
+            ` : ''}
+        `;
+        bookingsList.appendChild(bookingDiv);
+    });
+}
+
+function cancelBooking(id) {
+    if (confirm('Are you sure you want to cancel this session?')) {
+        alert('✅ Session cancelled successfully.');
+        loadBookingsByTab('upcoming');
+    }
+}
+
+function loadSettings() {
+    const userData = getCurrentUser();
+    if (!userData) return;
+
+    // Student settings fields
+    const nameField = document.getElementById('settingsName');
+    const emailField = document.getElementById('settingsEmail');
+    const phoneField = document.getElementById('settingsPhone');
+
+    // Tutor settings fields
+    const tutorNameField = document.getElementById('settingName');
+    const specialtiesField = document.getElementById('settingSpecialties');
+    const bioField = document.getElementById('settingBio');
+    const rateField = document.getElementById('settingRate');
+
+    if (nameField) nameField.value = userData.name || '';
+    if (emailField) emailField.value = userData.email || '';
+    if (phoneField) phoneField.value = userData.phone || '';
+    if (tutorNameField) tutorNameField.value = userData.name || '';
+    if (specialtiesField) specialtiesField.value = userData.subjects || '';
+    if (bioField) bioField.value = userData.bio || '';
+    if (rateField) rateField.value = userData.hourly_rate || '';
+}
+
+function saveProfileSettings() {
+    // Support both student (settingsName) and tutor (settingName) field IDs
+    const nameInput = document.getElementById('settingsName') || document.getElementById('settingName');
+    const phoneInput = document.getElementById('settingsPhone');
+    const bioInput = document.getElementById('settingBio');
+    const rateInput = document.getElementById('settingRate');
+    const specialtiesInput = document.getElementById('settingSpecialties');
+
+    const name = nameInput ? nameInput.value : '';
+
+    if (!name.trim()) {
+        alert('❌ Name cannot be empty!');
+        return;
+    }
+
+    const userData = getCurrentUser();
+    userData.name = name;
+    if (phoneInput) userData.phone = phoneInput.value;
+    if (bioInput) userData.bio = bioInput.value;
+    if (rateInput) userData.hourly_rate = rateInput.value;
+    if (specialtiesInput) userData.subjects = specialtiesInput.value;
+    setCurrentUser(userData);
+
+    alert('✅ Profile settings saved successfully!');
+    const userNameEl = document.getElementById('userName');
+    const userAvatarEl = document.getElementById('userAvatar');
+    if (userNameEl) userNameEl.textContent = name;
+    if (userAvatarEl) userAvatarEl.textContent = name[0].toUpperCase();
+}
+
+function changePassword() {
+    const current = document.getElementById('currentPassword').value;
+    const newPass = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+
+    if (!current || !newPass || !confirm) {
+        alert('❌ All fields are required!');
+        return;
+    }
+
+    if (newPass.length < 6) {
+        alert('❌ New password must be at least 6 characters!');
+        return;
+    }
+
+    if (newPass !== confirm) {
+        alert('❌ Passwords do not match!');
+        return;
+    }
+
+    alert('✅ Password changed successfully!');
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+}
+
+function savePreferences() {
+    alert('✅ Preferences saved successfully!');
 }
 
 // ===== STUDENT PROGRESS FUNCTIONS =====
@@ -1209,13 +1402,20 @@ function initLoginPage() {
         if (isValid) {
             showSuccessMessage(alertContainer, '🔐 Logging in...');
 
-            // Prepare form data
-            const formData = new FormData(form);
+            // Prepare JSON data instead of FormData
+            const loginData = {
+                email: email.value.trim(),
+                password: password.value,
+                role: role.value
+            };
 
             // Submit via AJAX to handle JSON response and redirect
             fetch('api/login.php', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(loginData)
             })
                 .then(response => response.json())
                 .then(data => {
@@ -1356,13 +1556,21 @@ function initRegisterPage() {
         if (isValid) {
             showSuccessMessage(alertContainer, '✨ Creating your account...');
 
-            // Prepare form data
-            const formData = new FormData(form);
+            // Prepare JSON data instead of FormData
+            const registerData = {
+                name: name.value.trim(),
+                email: email.value.trim(),
+                password: password.value,
+                role: role.value
+            };
 
             // Submit via AJAX to handle JSON response and redirect
             fetch('api/register.php', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(registerData)
             })
                 .then(response => response.json())
                 .then(data => {
