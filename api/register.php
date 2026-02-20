@@ -12,8 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Method not allowed', 405);
 }
 
-// Get JSON input
-$data = getJsonInput();
+// Get input (JSON or form-encoded)
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+if (stripos($contentType, 'application/json') !== false) {
+    $data = getJsonInput();
+} else {
+    $data = (object)$_POST;
+}
+
+if (empty((array)$data)) {
+    sendError('Invalid or empty input');
+}
 
 // Validate required fields
 if (empty($data->name) || empty($data->email) || empty($data->password) || empty($data->role)) {
@@ -75,7 +84,12 @@ $stmt->close();
 
 // If user is a tutor, create tutor profile
 if ($role === 'tutor') {
-    $subjects = !empty($data->subjects) ? implode(',', $data->subjects) : '';
+    if (!empty($data->subjects) && is_string($data->subjects)) {
+        $subjectsList = array_filter(array_map('trim', explode(',', $data->subjects)));
+    } else {
+        $subjectsList = !empty($data->subjects) && is_array($data->subjects) ? $data->subjects : [];
+    }
+    $subjects = !empty($subjectsList) ? implode(',', $subjectsList) : '';
     $bio = !empty($data->bio) ? sanitize($conn, $data->bio) : '';
     $experience = !empty($data->experience) ? intval($data->experience) : 0;
     $hourlyRate = !empty($data->hourlyRate) ? floatval($data->hourlyRate) : 0.00;

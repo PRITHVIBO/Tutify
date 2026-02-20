@@ -12,8 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendError('Method not allowed', 405);
 }
 
-// Get JSON input
-$data = getJsonInput();
+// Get input (JSON or form-encoded)
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+if (stripos($contentType, 'application/json') !== false) {
+    $data = getJsonInput();
+} else {
+    $data = (object)$_POST;
+}
+
+if (empty((array)$data)) {
+    sendError('Invalid or empty input');
+}
 
 // Validate required fields
 if (empty($data->email) || empty($data->password)) {

@@ -1207,12 +1207,43 @@ function initLoginPage() {
         }
 
         if (isValid) {
-            showSuccessMessage(alertContainer, '✅ Login form is valid! Redirecting to API...');
-            setTimeout(() => {
-                form.action = 'api/login.php';
-                form.method = 'post';
-                form.submit();
-            }, 1500);
+            showSuccessMessage(alertContainer, '🔐 Logging in...');
+
+            // Prepare form data
+            const formData = new FormData(form);
+
+            // Submit via AJAX to handle JSON response and redirect
+            fetch('api/login.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success alert
+                        alert(`✅ Login Successful!\n\nWelcome back, ${data.data.user.name}!\nRedirecting to your dashboard...`);
+
+                        // Store user data in localStorage
+                        localStorage.setItem('user', JSON.stringify(data.data.user));
+
+                        // Redirect to appropriate dashboard
+                        const dashboard = data.data.user.role === 'tutor'
+                            ? 'tutor/dashboard.html'
+                            : 'student/dashboard.html';
+
+                        setTimeout(() => {
+                            window.location.href = dashboard;
+                        }, 1000);
+                    } else {
+                        // Show error alert
+                        alert(`❌ Login Failed\n\n${data.message || 'Invalid email or password. Please try again.'}`);
+                        showErrorField(form, data.message || 'Login failed');
+                    }
+                })
+                .catch(error => {
+                    alert(`❌ Error\n\n${error.message}`);
+                    showErrorField(form, 'Error: ' + error.message);
+                });
         }
     });
 
@@ -1323,12 +1354,49 @@ function initRegisterPage() {
         }
 
         if (isValid) {
-            showSuccessMessage(alertContainer, '✨ Registration form is valid! Redirecting to API...');
-            setTimeout(() => {
-                form.action = 'api/register.php';
-                form.method = 'post';
-                form.submit();
-            }, 1500);
+            showSuccessMessage(alertContainer, '✨ Creating your account...');
+
+            // Prepare form data
+            const formData = new FormData(form);
+
+            // Submit via AJAX to handle JSON response and redirect
+            fetch('api/register.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success alert
+                        alert(`✅ Registration Successful!\n\nWelcome ${data.data.user.name}!\nYour account has been created successfully.\n\nRedirecting to dashboard...`);
+
+                        // Store user data in localStorage
+                        const userData = {
+                            id: data.data.user.id,
+                            name: data.data.user.name,
+                            email: data.data.user.email,
+                            role: data.data.user.role
+                        };
+                        localStorage.setItem('user', JSON.stringify(userData));
+
+                        // Redirect to appropriate dashboard
+                        const dashboard = data.data.user.role === 'tutor'
+                            ? 'tutor/dashboard.html'
+                            : 'student/dashboard.html';
+
+                        setTimeout(() => {
+                            window.location.href = dashboard;
+                        }, 1000);
+                    } else {
+                        // Show error alert
+                        alert(`❌ Registration Failed\n\n${data.message || 'An error occurred during registration. Please try again.'}`);
+                        showErrorField(form, data.message || 'Registration failed');
+                    }
+                })
+                .catch(error => {
+                    alert(`❌ Error\n\n${error.message}`);
+                    showErrorField(form, 'Error: ' + error.message);
+                });
         }
     });
 
