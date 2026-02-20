@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard | Tutify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>🎓 Tutify Student Dashboard</h1>
+        <p>Find the perfect tutor for your learning journey</p>
+    </header>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">S</div>
+                <div>
+                    <strong id="userName">Student</strong>
+                    <p style="margin: 5px 0 0 0; font-size: 0.85em; color: var(--text-secondary-day);">Student Account
+                    </p>
+                </div>
+            </div>
+
+            <h3>Navigation</h3>
+            <nav>
+                <a href="dashboard.html" class="active">📊 Dashboard</a>
+                <a href="progress.html">📈 My Progress</a>
+                <a href="#" onclick="showSection('bookings')">📅 My Bookings</a>
+                <a href="#" onclick="showSection('settings')">⚙️ Settings</a>
+            </nav>
+
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <section id="dashboard-section">
+                <h2>Dashboard Overview</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p>📚 Total Sessions</p>
+                        <h2 id="totalSessions">0</h2>
+                        <p>Booked sessions</p>
+                    </div>
+                    <div class="stat-card">
+                        <p>✅ Completed</p>
+                        <h2 id="completedSessions">0</h2>
+                        <p>Finished sessions</p>
+                    </div>
+                    <div class="stat-card">
+                        <p>⏰ Upcoming</p>
+                        <h2 id="upcomingSessions">0</h2>
+                        <p>Scheduled sessions</p>
+                    </div>
+                    <div class="stat-card">
+                        <p>⭐ Average Rating</p>
+                        <h2 id="avgRating">0.0</h2>
+                        <p>Your feedback</p>
+                    </div>
+                </div>
+
+                <h2>Find Tutors</h2>
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <select id="subjectFilter" onchange="filterTutors()">
+                            <option value="">All Subjects</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="English">English</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="History">History</option>
+                        </select>
+                        <input type="text" id="searchTutor" placeholder="🔍 Search tutor by name..."
+                            oninput="filterTutors()">
+                    </div>
+                </div>
+
+                <div class="tutor-grid" id="tutorGrid">
+                    <!-- Tutors will be loaded here dynamically -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>© 2026 Tutify | Student Dashboard</p>
+    </footer>
+
+    <script src="../js/app.js"></script>
+</body>
+
+</html>

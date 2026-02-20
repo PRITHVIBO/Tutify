@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Progress | Tutify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/app.js"></script>
+    </body>
+
+</head>
+
+<body>
+    <header>
+        <h1>📈 My Learning Progress</h1>
+        <p>Track your learning journey</p>
+    </header>
+
+    <div class="progress-container">
+        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+
+        <div class="progress-header">
+            <h2>Overall Progress</h2>
+            <div class="progress-stats">
+                <div class="progress-stat">
+                    <p>Total Sessions</p>
+                    <h3 id="totalSessions">12</h3>
+                </div>
+                <div class="progress-stat">
+                    <p>Completed</p>
+                    <h3 id="completedSessions">8</h3>
+                </div>
+                <div class="progress-stat">
+                    <p>Learning Hours</p>
+                    <h3 id="learningHours">24</h3>
+                </div>
+                <div class="progress-stat">
+                    <p>Subjects</p>
+                    <h3 id="subjectsCount">4</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>Subject-wise Progress</h2>
+            <div style="margin-top: 20px;">
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong>Mathematics</strong>
+                        <span>85%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;">85%</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong>Physics</strong>
+                        <span>72%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 72%;">72%</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong>Chemistry</strong>
+                        <span>68%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 68%;">68%</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong>Computer Science</strong>
+                        <span>90%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;">90%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="session-history">
+            <h2>Session History</h2>
+            <div id="sessionList">
+                <!-- Sessions will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Tutify | Student Progress Tracker</p>
+    </footer>
+
+    <script src="../js/app.js"></script>
+    <script>
+        window.addEventListener('load', loadStudentProgress);
+    </script>
+</body>
+
+</html>

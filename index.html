@@ -13,7 +13,7 @@
 <body>
 
     <header>
-        <h1>Tutify</h1>
+        <h1>🎓 Tutify</h1>
         <p>Personalized Tutoring Platform</p>
     </header>
 
@@ -29,33 +29,35 @@
     <section>
         <h2>Key Features</h2>
         <div class="features">
-            <div class="card">
-                <h3>Student Onboarding</h3>
+            <div class="card" onmouseover="animateCard(this)" onmouseout="resetCard(this)">
+                <h3>👨‍🎓 Student Onboarding</h3>
                 <p>Students register, select subjects, and define learning goals.</p>
             </div>
-            <div class="card">
-                <h3>Tutor Discovery</h3>
+            <div class="card" onmouseover="animateCard(this)" onmouseout="resetCard(this)">
+                <h3>🔍 Tutor Discovery</h3>
                 <p>Search tutors based on subject expertise and experience.</p>
             </div>
-            <div class="card">
-                <h3>Session Booking</h3>
+            <div class="card" onmouseover="animateCard(this)" onmouseout="resetCard(this)">
+                <h3>📅 Session Booking</h3>
                 <p>Easy booking and approval of tutoring sessions.</p>
             </div>
-            <div class="card">
-                <h3>Progress & Feedback</h3>
+            <div class="card" onmouseover="animateCard(this)" onmouseout="resetCard(this)">
+                <h3>📊 Progress & Feedback</h3>
                 <p>Track student progress and improve learning through feedback.</p>
             </div>
         </div>
     </section>
 
     <section class="buttons">
-        <a href="login.html">Login</a>
-        <a href="register.html">Register</a>
+        <a href="login.html" class="btn-login">Login</a>
+        <a href="register.html" class="btn-register">Register</a>
     </section>
 
     <footer>
         <p>© 2026 Tutify | Hackathon Project</p>
     </footer>
+
+    <script src="js/app.js"></script>
 
 </body>
 

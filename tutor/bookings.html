@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Session Bookings | Tutify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+    <header>
+        <h1>📅 Session Bookings</h1>
+        <p>Manage your tutoring sessions</p>
+    </header>
+
+    <div class="bookings-container">
+        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('pending')">⏳ Pending (3)</button>
+            <button class="tab-btn" onclick="showTab('confirmed')">✅ Confirmed (5)</button>
+            <button class="tab-btn" onclick="showTab('completed')">📚 Completed (42)</button>
+            <button class="tab-btn" onclick="showTab('rejected')">❌ Rejected (2)</button>
+        </div>
+
+        <div class="booking-list" id="bookingList">
+            <!-- Bookings will be loaded here -->
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Tutify | Session Management</p>
+    </footer>
+
+    <script src="../js/app.js"></script>
+    <script>
+        window.addEventListener('load', loadTutorBookings);
+    </script>
+</body>
+
+</html>

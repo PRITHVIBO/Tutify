@@ -13,43 +13,57 @@
 <body>
 
     <header>
-        <h1>Tutify</h1>
+        <h1>🎓 Tutify</h1>
         <p>Create a new account</p>
     </header>
 
     <section>
         <h2>Register</h2>
 
-        <form action="api/register.php" method="post" class="card">
-            <label>Full Name</label><br>
-            <input type="text" name="name" required><br><br>
+        <div id="alertContainer"></div>
 
-            <label>Email</label><br>
-            <input type="email" name="email" required><br><br>
+        <form id="registerForm" class="card">
+            <label for="name">👤 Full Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" required><br>
 
-            <label>Password</label><br>
-            <input type="password" name="password" required><br><br>
+            <label for="email">📧 Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required><br>
 
-            <label>Register As</label><br>
-            <select name="role" required>
+            <label for="password">🔒 Password</label>
+            <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+            <div class="password-strength">
+                <div id="strengthBar" class="password-strength-bar"></div>
+            </div>
+            <div id="strengthText" class="strength-text"></div><br>
+
+            <label for="confirmPassword">✅ Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password"
+                required><br>
+
+            <label for="role">👥 Register As</label>
+            <select id="role" name="role" required>
+                <option value="">-- Select Role --</option>
                 <option value="student">Student</option>
                 <option value="tutor">Tutor</option>
-            </select><br><br>
+            </select><br>
 
-            <button type="submit">Register</button>
+            <button type="submit">✨ Register</button>
         </form>
-        <div style="text-align:center; margin-top:15px;">
+
+        <div class="text-center-margin">
             <a href="index.html" class="back-btn">← Back to Home</a>
         </div>
 
-        <p style="text-align:center;margin-top:15px;">
-            Already have an account? <a href="login.html">Login</a>
+        <p class="secondary-text">
+            Already have an account? <a href="login.html" class="secondary-link">Login</a>
         </p>
     </section>
 
     <footer>
         <p>© 2026 Tutify</p>
     </footer>
+
+    <script src="js/app.js"></script>
 
 </body>
 

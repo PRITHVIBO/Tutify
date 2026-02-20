@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tutor Dashboard | Tutify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+    <header>
+        <h1>👨‍🏫 Tutify Tutor Dashboard</h1>
+        <p>Manage your students and sessions</p>
+    </header>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">T</div>
+                <div>
+                    <strong id="userName">Tutor</strong>
+                    <p style="margin: 5px 0 0 0; font-size: 0.85em; color: var(--text-secondary-day);">Tutor Account</p>
+                </div>
+            </div>
+
+            <h3>Navigation</h3>
+            <nav>
+                <a href="dashboard.html" class="active">📊 Dashboard</a>
+                <a href="bookings.html">📅 Session Bookings</a>
+                <a href="#" onclick="showSection('students')">👥 My Students</a>
+                <a href="#" onclick="showSection('schedule')">🕒 Schedule</a>
+                <a href="#" onclick="showSection('settings')">⚙️ Settings</a>
+            </nav>
+
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <div class="profile-section">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">T</div>
+                    <div class="profile-info">
+                        <h2 id="tutorName">Dr. Sarah Johnson</h2>
+                        <p style="color: var(--text-secondary-day); margin-bottom: 10px;">Mathematics Expert | 10 years
+                            experience</p>
+                        <p style="font-size: 0.9em;">⭐ 4.8 Rating | 150 Sessions Completed</p>
+                        <div class="profile-badges">
+                            <span class="badge">📐 Mathematics</span>
+                            <span class="badge">📊 Statistics</span>
+                            <span class="badge">🔬 Calculus</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="edit-profile-btn" onclick="editProfile()">✏️ Edit Profile</button>
+            </div>
+
+            <h2>Dashboard Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <p>👥 Total Students</p>
+                    <h2 id="totalStudents">24</h2>
+                    <p>Active students</p>
+                </div>
+                <div class="stat-card">
+                    <p>📚 Total Sessions</p>
+                    <h2 id="totalSessions">150</h2>
+                    <p>Sessions conducted</p>
+                </div>
+                <div class="stat-card">
+                    <p>⏰ This Week</p>
+                    <h2 id="weekSessions">8</h2>
+                    <p>Scheduled sessions</p>
+                </div>
+                <div class="stat-card">
+                    <p>⭐ Average Rating</p>
+                    <h2 id="avgRating">4.8</h2>
+                    <p>Student feedback</p>
+                </div>
+            </div>
+
+            <div class="recent-students">
+                <h2>Recent Students</h2>
+                <div class="student-list" id="studentList">
+                    <!-- Students will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>© 2026 Tutify | Tutor Dashboard</p>
+    </footer>
+
+    <script src="../js/app.js"></script>
+    <script>
+        window.addEventListener('load', loadTutorDashboard);
+    </script>
+</body>
+
+</html>
