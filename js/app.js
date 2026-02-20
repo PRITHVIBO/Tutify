@@ -223,6 +223,20 @@ function showToast(message, type = 'info') {
 }
 
 /**
+ * Convert 24-hour time string (HH:MM) to 12-hour format (h:MM AM/PM)
+ * @param {string} time24 - Time in HH:MM format
+ * @returns {string} Time in h:MM AM/PM format
+ */
+function formatTime12(time24) {
+    if (!time24) return '';
+    const [hourStr, minute] = time24.split(':');
+    let hour = parseInt(hourStr, 10);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return `${hour}:${minute} ${period}`;
+}
+
+/**
  * Format date to readable string
  * @param {string|Date} date - Date to format
  * @returns {string} Formatted date string
@@ -698,28 +712,63 @@ function hideSuggestionsDelayed() {
 }
 
 function bookSessionNow(tutorId, tutorName) {
-    const subject = window.allTutors.find(t => t.id === tutorId)?.subject || 'General';
-    if (confirm(`Book a session with ${tutorName} (${subject})?`)) {
-        const bookings = getUserBookings();
-        const today = new Date();
-        // Schedule 3 days from now as default upcoming date
-        const sessionDate = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
-        const newBooking = {
-            id: Date.now(),
-            person: tutorName,
-            subject: subject,
-            date: sessionDate.toISOString().split('T')[0],
-            time: '10:00 AM',
-            status: 'upcoming',
-            duration: '1 hour',
-            rate: '$40',
-            rating: 0
-        };
-        bookings.push(newBooking);
-        saveUserBookings(bookings);
-        loadDashboardData();
-        alert(`✅ Session booked with ${tutorName}!\nCheck 📅 My Bookings to manage it.`);
-    }
+    const tutor = (window.allTutors || []).find(t => t.id === tutorId);
+    const subject = tutor?.subject || 'General';
+
+    // Pre-fill modal
+    document.getElementById('modalTutorName').value = tutorName;
+    document.getElementById('modalSubject').value = subject;
+    document.getElementById('modalTopic').value = '';
+    document.getElementById('modalMessage').value = '';
+
+    // Default date = 3 days from today, time = 10:00
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 3);
+    document.getElementById('modalDate').value = defaultDate.toISOString().split('T')[0];
+    document.getElementById('modalDate').min = new Date().toISOString().split('T')[0];
+    document.getElementById('modalTime').value = '10:00';
+    document.getElementById('modalDuration').value = '2 hours';
+
+    // Store tutorId for submit
+    document.getElementById('bookingForm').dataset.tutorId = tutorId;
+    document.getElementById('bookingForm').dataset.tutorName = tutorName;
+
+    // Show modal
+    document.getElementById('bookingModal').style.display = 'flex';
+}
+
+function closeBookingModal() {
+    document.getElementById('bookingModal').style.display = 'none';
+}
+
+function submitStudentBooking(event) {
+    event.preventDefault();
+    const form = document.getElementById('bookingForm');
+    const tutorName = form.dataset.tutorName;
+
+    const booking = {
+        id: Date.now(),
+        person: tutorName,
+        subject: document.getElementById('modalSubject').value,
+        topic: document.getElementById('modalTopic').value,
+        date: document.getElementById('modalDate').value,
+        time: formatTime12(document.getElementById('modalTime').value),
+        duration: document.getElementById('modalDuration').value,
+        message: document.getElementById('modalMessage').value,
+        rate: '$40',
+        status: 'upcoming',
+        rating: 0
+    };
+
+    const bookings = getUserBookings();
+    bookings.push(booking);
+    saveUserBookings(bookings);
+
+    closeBookingModal();
+    loadDashboardData();
+
+    // Flash success notification
+    showToast(`✅ Session booked with ${tutorName}! Check 📅 My Bookings.`, 'success');
 }
 
 function showSection(section) {
@@ -1116,9 +1165,14 @@ function loadStudents() {
             <p style="font-size: 0.85em; color: var(--text-secondary-day); margin-top: 10px;">
                 📅 ${student.sessions} sessions | Last: ${new Date(student.lastSession).toLocaleDateString()}
             </p>
-            <button class="update-btn" onclick="updateProgress('${student.name}')">
-                📝 Update Progress
-            </button>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="update-btn" style="flex:1;" onclick="updateProgress('${student.name}')">
+                    📝 Update Progress
+                </button>
+                <button class="connect-btn" style="flex:1;" onclick="openTutorBookingModal('${student.name}', '${student.subject}')">
+                    📅 Book Session
+                </button>
+            </div>
         `;
         studentList.appendChild(card);
     });
@@ -1155,7 +1209,7 @@ function loadAvailableStudents() {
                 <p class="as-goal">🎯 ${s.goal}</p>
             </div>
             <button class="connect-btn" onclick="connectStudent('${s.name}', '${s.subject}')">
-                🤝 Connect
+                📅 Book Session
             </button>
         `;
         container.appendChild(card);
@@ -1163,9 +1217,78 @@ function loadAvailableStudents() {
 }
 
 function connectStudent(name, subject) {
-    if (confirm(`Send a session offer to ${name} for ${subject}?`)) {
-        alert(`✅ Connection request sent to ${name}! They'll be notified to confirm.`);
+    openTutorBookingModal(name, subject);
+}
+
+function openTutorBookingModal(studentName, prefillSubject) {
+    const modal = document.getElementById('tutorBookingModal');
+    if (!modal) return;
+
+    document.getElementById('tModalStudentName').value = studentName;
+    document.getElementById('tModalTopic').value = '';
+    document.getElementById('tModalNotes').value = '';
+
+    // Pre-select subject if provided
+    const subjectSel = document.getElementById('tModalSubject');
+    if (prefillSubject) {
+        for (let i = 0; i < subjectSel.options.length; i++) {
+            if (subjectSel.options[i].value === prefillSubject) {
+                subjectSel.selectedIndex = i;
+                break;
+            }
+        }
+    } else {
+        subjectSel.selectedIndex = 0;
     }
+
+    // Default date = tomorrow, time = 10:00
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('tModalDate').value = tomorrow.toISOString().split('T')[0];
+    document.getElementById('tModalDate').min = new Date().toISOString().split('T')[0];
+    document.getElementById('tModalTime').value = '10:00';
+    document.getElementById('tModalDuration').value = '2 hours';
+
+    document.getElementById('tutorBookingForm').dataset.studentName = studentName;
+    modal.style.display = 'flex';
+}
+
+function closeTutorBookingModal() {
+    const modal = document.getElementById('tutorBookingModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function submitTutorBooking(event) {
+    event.preventDefault();
+    const form = document.getElementById('tutorBookingForm');
+    const studentName = form.dataset.studentName;
+    const subject = document.getElementById('tModalSubject').value;
+    const topic = document.getElementById('tModalTopic').value;
+    const date = document.getElementById('tModalDate').value;
+    const time = formatTime12(document.getElementById('tModalTime').value);
+    const duration = document.getElementById('tModalDuration').value;
+    const notes = document.getElementById('tModalNotes').value;
+
+    const booking = {
+        id: Date.now(),
+        person: studentName,
+        subject: subject,
+        topic: topic,
+        date: date,
+        time: time,
+        duration: duration,
+        notes: notes,
+        rate: '$40',
+        status: 'upcoming',
+        bookedBy: 'tutor'
+    };
+
+    const bookings = getUserBookings();
+    bookings.push(booking);
+    saveUserBookings(bookings);
+
+    closeTutorBookingModal();
+    showToast(`✅ Session scheduled with ${studentName} on ${date} at ${time}!`, 'success');
 }
 
 function updateProgress(studentName) {
@@ -1794,4 +1917,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initLandingPage();
     initLoginPage();
     initRegisterPage();
+});
+
+// Close any open booking modal when Escape is pressed
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        const studentModal = document.getElementById('bookingModal');
+        const tutorModal = document.getElementById('tutorBookingModal');
+        if (studentModal && studentModal.style.display !== 'none') closeBookingModal();
+        if (tutorModal && tutorModal.style.display !== 'none') closeTutorBookingModal();
+    }
 });

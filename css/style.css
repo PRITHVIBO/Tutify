@@ -1869,3 +1869,180 @@ footer {
         text-align: center;
     }
 }
+
+/* ===== BOOKING MODAL ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 20, 40, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-box {
+    background: var(--bg-card-day);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(91, 124, 250, 0.25);
+    border: 1px solid var(--border-day);
+    animation: slideDown 0.25s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+    .modal-box {
+        background: var(--bg-card-night);
+        border-color: var(--border-night);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border-day);
+}
+
+.modal-header h3 {
+    font-size: 1.25em;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.3em;
+    cursor: pointer;
+    color: var(--text-secondary-day);
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.modal-body {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.modal-field label {
+    display: block;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--text-secondary-day);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.modal-field input,
+.modal-field select,
+.modal-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border-day);
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-family: inherit;
+    background: var(--bg-day);
+    color: var(--text-day);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-field input:focus,
+.modal-field select:focus,
+.modal-field textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(91, 124, 250, 0.12);
+}
+
+.modal-field input[readonly] {
+    background: rgba(91, 124, 250, 0.05);
+    cursor: default;
+    font-weight: 600;
+}
+
+.modal-field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border-day);
+}
+
+.btn-modal-cancel {
+    flex: 1;
+    padding: 11px;
+    border: 1.5px solid var(--border-day);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-day);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-cancel:hover {
+    background: rgba(91, 124, 250, 0.07);
+    border-color: var(--primary-color);
+}
+
+.btn-modal-confirm {
+    flex: 2;
+    padding: 11px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.98em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(91, 124, 250, 0.3);
+}
+
+.btn-modal-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(91, 124, 250, 0.45);
+}
+
+.btn-modal-confirm:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 540px) {
+    .modal-box {
+        margin: 10px;
+        max-height: 95vh;
+    }
+
+    .modal-row {
+        grid-template-columns: 1fr;
+    }
+}

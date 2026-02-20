@@ -192,6 +192,69 @@
         <p>© 2026 Tutify | Tutor Dashboard</p>
     </footer>
 
+    <!-- ===== BOOKING MODAL (Tutor → Student) ===== -->
+    <div id="tutorBookingModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeTutorBookingModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>📅 Schedule a Session</h3>
+                <button class="modal-close" onclick="closeTutorBookingModal()">✕</button>
+            </div>
+            <form id="tutorBookingForm" onsubmit="submitTutorBooking(event)">
+                <div class="modal-body">
+                    <div class="modal-field">
+                        <label>Student</label>
+                        <input type="text" id="tModalStudentName" readonly>
+                    </div>
+                    <div class="modal-field">
+                        <label>Subject *</label>
+                        <select id="tModalSubject" required>
+                            <option value="">— Select subject —</option>
+                            <option value="Mathematics">📐 Mathematics</option>
+                            <option value="Physics">⚛️ Physics</option>
+                            <option value="Chemistry">🧪 Chemistry</option>
+                            <option value="Biology">🔬 Biology</option>
+                            <option value="English">📖 English</option>
+                            <option value="Computer Science">💻 Computer Science</option>
+                            <option value="History">📚 History</option>
+                            <option value="Statistics">📊 Statistics</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Topic *</label>
+                        <input type="text" id="tModalTopic" placeholder="e.g. Quadratic Equations" required>
+                    </div>
+                    <div class="modal-row">
+                        <div class="modal-field">
+                            <label>Date *</label>
+                            <input type="date" id="tModalDate" required>
+                        </div>
+                        <div class="modal-field">
+                            <label>Time *</label>
+                            <input type="time" id="tModalTime" required>
+                        </div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Duration</label>
+                        <select id="tModalDuration">
+                            <option value="1 hour">1 hour</option>
+                            <option value="1.5 hours">1.5 hours</option>
+                            <option value="2 hours" selected>2 hours</option>
+                            <option value="3 hours">3 hours</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Session Notes (optional)</label>
+                        <textarea id="tModalNotes" placeholder="Topics to cover, student level, special instructions..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" onclick="closeTutorBookingModal()">Cancel</button>
+                    <button type="submit" class="btn-modal-confirm">📅 Schedule Session</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../js/app.js"></script>
     <script>
         window.addEventListener('load', loadTutorDashboard);

@@ -182,7 +182,63 @@
         <p>© 2026 Tutify | Student Dashboard</p>
     </footer>
 
+    <!-- ===== BOOKING MODAL ===== -->
+    <div id="bookingModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeBookingModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>📅 Book a Session</h3>
+                <button class="modal-close" onclick="closeBookingModal()">✕</button>
+            </div>
+            <form id="bookingForm" onsubmit="submitStudentBooking(event)">
+                <div class="modal-body">
+                    <div class="modal-field">
+                        <label>Tutor</label>
+                        <input type="text" id="modalTutorName" readonly class="setting-input">
+                    </div>
+                    <div class="modal-field">
+                        <label>Subject</label>
+                        <input type="text" id="modalSubject" readonly class="setting-input">
+                    </div>
+                    <div class="modal-field">
+                        <label>Topic *</label>
+                        <input type="text" id="modalTopic" placeholder="e.g. Calculus Integration" required>
+                    </div>
+                    <div class="modal-row">
+                        <div class="modal-field">
+                            <label>Date *</label>
+                            <input type="date" id="modalDate" required>
+                        </div>
+                        <div class="modal-field">
+                            <label>Time *</label>
+                            <input type="time" id="modalTime" required>
+                        </div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Duration</label>
+                        <select id="modalDuration">
+                            <option value="1 hour">1 hour</option>
+                            <option value="1.5 hours">1.5 hours</option>
+                            <option value="2 hours" selected>2 hours</option>
+                            <option value="3 hours">3 hours</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Message (optional)</label>
+                        <textarea id="modalMessage" placeholder="Add any notes or questions for the tutor..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" onclick="closeBookingModal()">Cancel</button>
+                    <button type="submit" class="btn-modal-confirm">📅 Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../js/app.js"></script>
+    <script>
+        window.addEventListener('load', loadStudentDashboard);
+    </script>
 </body>
 
 </html>
