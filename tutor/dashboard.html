@@ -18,10 +18,11 @@
     <div class="dashboard-container">
         <aside class="sidebar">
             <div class="user-info">
-                <div class="user-avatar" id="userAvatar">T</div>
+                <div class="user-avatar" id="userAvatar">...</div>
                 <div>
-                    <strong id="userName">Tutor</strong>
-                    <p style="margin: 5px 0 0 0; font-size: 0.85em; color: var(--text-secondary-day);">Tutor Account</p>
+                    <strong id="userName">Loading...</strong>
+                    <p style="margin: 5px 0 0 0; font-size: 0.85em; color: var(--text-secondary-day);" id="userRole">
+                        Tutor Account</p>
                 </div>
             </div>
 
@@ -82,9 +83,18 @@
                 </div>
 
                 <div class="recent-students">
-                    <h2>Recent Students</h2>
+                    <h2>My Students</h2>
                     <div class="student-list" id="studentList">
                         <!-- Students will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="available-students-section">
+                    <h2>🔍 Students Looking for a Tutor</h2>
+                    <p class="section-subtitle">Students actively seeking help — connect with them to grow your reach
+                    </p>
+                    <div class="available-students-grid" id="availableStudentsList">
+                        <!-- Available students loaded here -->
                     </div>
                 </div>
             </section>

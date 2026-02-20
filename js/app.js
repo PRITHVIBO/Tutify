@@ -514,88 +514,62 @@ function loadStudentDashboard() {
         return;
     }
 
-    document.getElementById('userName').textContent = userData.name || 'Student';
-    document.getElementById('userAvatar').textContent = (userData.name || 'S')[0].toUpperCase();
+    document.getElementById('userName').textContent = userData.name || userData.email || 'Student';
+    document.getElementById('userAvatar').textContent = (userData.name || userData.email || 'S')[0].toUpperCase();
+    const roleEl = document.getElementById('userRole');
+    if (roleEl) roleEl.textContent = userData.email || 'Student Account';
 
     loadDashboardData();
     loadTutors();
 }
 
+// ── Booking storage helpers ──────────────────────────────────────────
+function getBookingKey() {
+    const u = getCurrentUser();
+    return u ? `bookings_${u.email}` : 'bookings_guest';
+}
+function getUserBookings() {
+    return JSON.parse(localStorage.getItem(getBookingKey()) || '[]');
+}
+function saveUserBookings(bookings) {
+    localStorage.setItem(getBookingKey(), JSON.stringify(bookings));
+}
+
 function loadDashboardData() {
-    setTimeout(() => {
-        document.getElementById('totalSessions').textContent = '12';
-        document.getElementById('completedSessions').textContent = '8';
-        document.getElementById('upcomingSessions').textContent = '4';
-        document.getElementById('avgRating').textContent = '4.5';
-    }, 500);
+    const bookings = getUserBookings();
+    const total = bookings.length;
+    const completed = bookings.filter(b => b.status === 'completed').length;
+    const upcoming = bookings.filter(b => b.status === 'upcoming').length;
+
+    // Average rating from completed sessions that have a rating
+    const rated = bookings.filter(b => b.rating && b.rating > 0);
+    const avg = rated.length ? (rated.reduce((s, b) => s + b.rating, 0) / rated.length).toFixed(1) : '—';
+
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setEl('totalSessions', total);
+    setEl('completedSessions', completed);
+    setEl('upcomingSessions', upcoming);
+    setEl('avgRating', avg);
 }
 
 function loadTutors() {
     const tutors = [
-        {
-            id: 1,
-            name: 'Dr. Sarah Johnson',
-            subject: 'Mathematics',
-            experience: '10 years',
-            rating: 4.8,
-            sessions: 150,
-            availability: 'Available',
-            description: 'Expert in Advanced Mathematics and Calculus'
-        },
-        {
-            id: 2,
-            name: 'Prof. Michael Chen',
-            subject: 'Physics',
-            experience: '8 years',
-            rating: 4.9,
-            sessions: 120,
-            availability: 'Available',
-            description: 'Specialized in Quantum Physics and Mechanics'
-        },
-        {
-            id: 3,
-            name: 'Ms. Emily Davis',
-            subject: 'Chemistry',
-            experience: '5 years',
-            rating: 4.7,
-            sessions: 90,
-            availability: 'Busy',
-            description: 'Organic Chemistry and Lab Techniques'
-        },
-        {
-            id: 4,
-            name: 'Dr. Robert Brown',
-            subject: 'Biology',
-            experience: '12 years',
-            rating: 4.9,
-            sessions: 200,
-            availability: 'Available',
-            description: 'Molecular Biology and Genetics Expert'
-        },
-        {
-            id: 5,
-            name: 'Ms. Lisa Anderson',
-            subject: 'English',
-            experience: '6 years',
-            rating: 4.6,
-            sessions: 85,
-            availability: 'Available',
-            description: 'Literature and Advanced Writing Skills'
-        },
-        {
-            id: 6,
-            name: 'Mr. David Wilson',
-            subject: 'Computer Science',
-            experience: '7 years',
-            rating: 4.8,
-            sessions: 110,
-            availability: 'Available',
-            description: 'Programming and Data Structures'
-        }
+        { id: 1, name: 'Dr. Sarah Johnson', subject: 'Mathematics', experience: '10 years', rating: 4.8, sessions: 150, availability: 'Available', description: 'Expert in Advanced Mathematics and Calculus' },
+        { id: 2, name: 'Prof. Michael Chen', subject: 'Physics', experience: '8 years', rating: 4.9, sessions: 120, availability: 'Available', description: 'Specialized in Quantum Physics and Mechanics' },
+        { id: 3, name: 'Ms. Emily Davis', subject: 'Chemistry', experience: '5 years', rating: 4.7, sessions: 90, availability: 'Busy', description: 'Organic Chemistry and Lab Techniques' },
+        { id: 4, name: 'Dr. Robert Brown', subject: 'Biology', experience: '12 years', rating: 4.9, sessions: 200, availability: 'Available', description: 'Molecular Biology and Genetics Expert' },
+        { id: 5, name: 'Ms. Lisa Anderson', subject: 'English', experience: '6 years', rating: 4.6, sessions: 85, availability: 'Available', description: 'Literature and Advanced Writing Skills' },
+        { id: 6, name: 'Mr. David Wilson', subject: 'Computer Science', experience: '7 years', rating: 4.8, sessions: 110, availability: 'Available', description: 'Programming and Data Structures' },
+        { id: 7, name: 'Dr. Priya Sharma', subject: 'Mathematics', experience: '9 years', rating: 4.7, sessions: 130, availability: 'Available', description: 'Algebra, Geometry and IB Math' },
+        { id: 8, name: 'Mr. Carlos Ruiz', subject: 'History', experience: '4 years', rating: 4.5, sessions: 60, availability: 'Busy', description: 'World History and AP History prep' },
+        { id: 9, name: 'Ms. Hannah Park', subject: 'Computer Science', experience: '5 years', rating: 4.8, sessions: 95, availability: 'Available', description: 'Python, Java and Web Development' }
     ];
 
-    displayTutors(tutors);
     window.allTutors = tutors;
+    // Default: show only available tutors
+    const availEl = document.getElementById('availabilityFilter');
+    if (availEl && !availEl.value) availEl.value = 'Available';
+    filterTutors();
 }
 
 function displayTutors(tutors) {
@@ -638,11 +612,11 @@ function displayTutors(tutors) {
 
 function filterTutors() {
     const subject = document.getElementById('subjectFilter').value.toLowerCase();
-    const search = document.getElementById('searchTutor').value.toLowerCase();
+    const search = (document.getElementById('searchTutor')?.value || '').toLowerCase();
     const minRating = parseFloat(document.getElementById('ratingFilter').value) || 0;
     const availability = document.getElementById('availabilityFilter').value.toLowerCase();
 
-    const filtered = window.allTutors.filter(tutor => {
+    const filtered = (window.allTutors || []).filter(tutor => {
         const matchesSubject = !subject || tutor.subject.toLowerCase() === subject;
         const matchesSearch = !search || tutor.name.toLowerCase().includes(search);
         const matchesRating = tutor.rating >= minRating;
@@ -651,15 +625,100 @@ function filterTutors() {
     });
 
     displayTutors(filtered);
+    updateFilterBadge(filtered.length, availability);
+
+    // Show suggestions only when there is typed text
+    if (search.length > 0) {
+        renderSuggestions(filtered.slice(0, 6));
+    } else {
+        const box = document.getElementById('tutorSuggestions');
+        if (box) box.style.display = 'none';
+    }
+}
+
+function updateFilterBadge(count, availability) {
+    const el = document.getElementById('filterResults');
+    if (!el) return;
+    const label = availability === 'available' ? 'available' : '';
+    const color = count > 0 ? 'var(--success-color)' : 'var(--error-color)';
+    el.innerHTML = `<span style="color:${color}; font-weight:600; font-size:0.9em;">
+        ${count === 0 ? '😕 No tutors found' : `✅ ${count} ${label} tutor${count !== 1 ? 's' : ''} found`}
+    </span>`;
+}
+
+function renderSuggestions(tutors) {
+    const box = document.getElementById('tutorSuggestions');
+    if (!box) return;
+    if (tutors.length === 0) { box.style.display = 'none'; return; }
+
+    box.innerHTML = tutors.map(t => `
+        <div class="suggestion-item" onmousedown="selectSuggestion(${t.id}, '${t.name}')">
+            <div class="suggestion-avatar">${t.name[0]}</div>
+            <div class="suggestion-details">
+                <strong>${t.name}</strong>
+                <span>${t.subject} &nbsp;·&nbsp; ⭐ ${t.rating}</span>
+            </div>
+            <span class="suggestion-tag ${t.availability === 'Available' ? 'tag-available' : 'tag-busy'}">
+                ${t.availability === 'Available' ? '✅' : '⏰'} ${t.availability}
+            </span>
+        </div>
+    `).join('');
+    box.style.display = 'block';
+}
+
+function selectSuggestion(id, name) {
+    const input = document.getElementById('searchTutor');
+    if (input) input.value = name;
+    const box = document.getElementById('tutorSuggestions');
+    if (box) box.style.display = 'none';
+    filterTutors();
+    // Scroll to the matching card
+    setTimeout(() => {
+        const cards = document.querySelectorAll('.tutor-card');
+        cards.forEach(card => {
+            if (card.querySelector('h3')?.textContent === name) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('highlight-card');
+                setTimeout(() => card.classList.remove('highlight-card'), 2000);
+            }
+        });
+    }, 100);
+}
+
+function showSuggestions() {
+    const search = (document.getElementById('searchTutor')?.value || '').toLowerCase();
+    if (search.length > 0) filterTutors();
+}
+
+function hideSuggestionsDelayed() {
+    setTimeout(() => {
+        const box = document.getElementById('tutorSuggestions');
+        if (box) box.style.display = 'none';
+    }, 200);
 }
 
 function bookSessionNow(tutorId, tutorName) {
-    if (confirm(`Book a session with ${tutorName}?`)) {
-        alert(`Session booking request sent to ${tutorName}! You will be notified once confirmed.`);
-        const current = parseInt(document.getElementById('totalSessions').textContent);
-        document.getElementById('totalSessions').textContent = current + 1;
-        const upcoming = parseInt(document.getElementById('upcomingSessions').textContent);
-        document.getElementById('upcomingSessions').textContent = upcoming + 1;
+    const subject = window.allTutors.find(t => t.id === tutorId)?.subject || 'General';
+    if (confirm(`Book a session with ${tutorName} (${subject})?`)) {
+        const bookings = getUserBookings();
+        const today = new Date();
+        // Schedule 3 days from now as default upcoming date
+        const sessionDate = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
+        const newBooking = {
+            id: Date.now(),
+            person: tutorName,
+            subject: subject,
+            date: sessionDate.toISOString().split('T')[0],
+            time: '10:00 AM',
+            status: 'upcoming',
+            duration: '1 hour',
+            rate: '$40',
+            rating: 0
+        };
+        bookings.push(newBooking);
+        saveUserBookings(bookings);
+        loadDashboardData();
+        alert(`✅ Session booked with ${tutorName}!\nCheck 📅 My Bookings to manage it.`);
     }
 }
 
@@ -699,13 +758,6 @@ function showBookingTab(tab, btnEl) {
 }
 
 function loadBookings() {
-    const bookingsList = document.getElementById('bookings-list');
-    const bookings = [
-        { id: 1, tutor: 'Dr. Sarah Johnson', subject: 'Mathematics', date: '2026-02-25', time: '2:00 PM', status: 'upcoming' },
-        { id: 2, tutor: 'Prof. Michael Chen', subject: 'Physics', date: '2026-02-18', time: '3:30 PM', status: 'completed' },
-        { id: 3, tutor: 'Ms. Emily Davis', subject: 'Chemistry', date: '2026-02-10', time: '1:00 PM', status: 'cancelled' }
-    ];
-
     loadBookingsByTab('upcoming');
 }
 
@@ -715,20 +767,9 @@ function loadBookingsByTab(tab) {
 
     const userData = getCurrentUser();
     const isTutor = userData && userData.role === 'tutor';
-
-    const studentBookings = [
-        { id: 1, person: 'Dr. Sarah Johnson', subject: 'Mathematics', date: '2026-02-25', time: '2:00 PM', status: 'upcoming', duration: '1 hour', rate: '$40' },
-        { id: 2, person: 'Prof. Michael Chen', subject: 'Physics', date: '2026-02-18', time: '3:30 PM', status: 'completed', duration: '1.5 hours', rate: '$50' },
-        { id: 3, person: 'Ms. Emily Davis', subject: 'Chemistry', date: '2026-02-10', time: '1:00 PM', status: 'cancelled', duration: '1 hour', rate: '$35' }
-    ];
-    const tutorBookings = [
-        { id: 1, person: 'Alex Turner', subject: 'Mathematics', date: '2026-02-25', time: '2:00 PM', status: 'upcoming', duration: '1 hour', rate: '$40' },
-        { id: 2, person: 'Jamie Lee', subject: 'Statistics', date: '2026-02-18', time: '3:30 PM', status: 'completed', duration: '1.5 hours', rate: '$50' },
-        { id: 3, person: 'Sam Rivera', subject: 'Calculus', date: '2026-02-10', time: '1:00 PM', status: 'cancelled', duration: '1 hour', rate: '$40' }
-    ];
-
-    const allBookings = isTutor ? tutorBookings : studentBookings;
     const personLabel = isTutor ? 'Student' : 'Tutor';
+
+    const allBookings = getUserBookings();
     const filtered = allBookings.filter(b => b.status === tab);
     bookingsList.innerHTML = '';
 
@@ -767,8 +808,15 @@ function loadBookingsByTab(tab) {
 
 function cancelBooking(id) {
     if (confirm('Are you sure you want to cancel this session?')) {
+        const bookings = getUserBookings();
+        const idx = bookings.findIndex(b => b.id === id);
+        if (idx !== -1) {
+            bookings[idx].status = 'cancelled';
+            saveUserBookings(bookings);
+        }
+        loadDashboardData();      // refresh stat cards
+        loadBookingsByTab('upcoming'); // stay on upcoming tab
         alert('✅ Session cancelled successfully.');
-        loadBookingsByTab('upcoming');
     }
 }
 
@@ -983,12 +1031,15 @@ function loadTutorDashboard() {
         return;
     }
 
-    document.getElementById('userName').textContent = userData.name || 'Tutor';
-    document.getElementById('userAvatar').textContent = (userData.name || 'T')[0].toUpperCase();
+    document.getElementById('userName').textContent = userData.name || userData.email || 'Tutor';
+    document.getElementById('userAvatar').textContent = (userData.name || userData.email || 'T')[0].toUpperCase();
+    const roleEl = document.getElementById('userRole');
+    if (roleEl) roleEl.textContent = userData.email || 'Tutor Account';
     document.getElementById('tutorName').textContent = userData.name || 'Dr. Sarah Johnson';
     document.getElementById('profileAvatar').textContent = (userData.name || 'T')[0].toUpperCase();
 
     loadStudents();
+    loadAvailableStudents();
 }
 
 function loadStudents() {
@@ -1071,6 +1122,50 @@ function loadStudents() {
         `;
         studentList.appendChild(card);
     });
+}
+
+function loadAvailableStudents() {
+    const container = document.getElementById('availableStudentsList');
+    if (!container) return;
+
+    const students = [
+        { name: 'Ava Thompson', subject: 'Mathematics', level: 'Grade 11', goal: 'Improve Calculus for college entrance', avatar: 'A', joined: '2 days ago' },
+        { name: 'Liam Patel', subject: 'Physics', level: 'Grade 12', goal: 'Ace AP Physics exam', avatar: 'L', joined: '1 day ago' },
+        { name: 'Sofia Nguyen', subject: 'Chemistry', level: 'Grade 10', goal: 'Understand organic chemistry basics', avatar: 'S', joined: '3 hours ago' },
+        { name: 'Noah Garcia', subject: 'Computer Science', level: 'Grade 9', goal: 'Learn Python from scratch', avatar: 'N', joined: '5 hours ago' },
+        { name: 'Emma Wilson', subject: 'English', level: 'Grade 12', goal: 'Essay writing for college apps', avatar: 'E', joined: 'Just now' },
+        { name: 'Oliver Kim', subject: 'Biology', level: 'Grade 11', goal: 'Genetics and cell biology help', avatar: 'O', joined: '1 hour ago' }
+    ];
+
+    container.innerHTML = '';
+    students.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'available-student-card';
+        card.innerHTML = `
+            <div class="as-header">
+                <div class="as-avatar">${s.avatar}</div>
+                <div class="as-info">
+                    <h4>${s.name}</h4>
+                    <span class="as-level">${s.level}</span>
+                </div>
+                <span class="as-time">${s.joined}</span>
+            </div>
+            <div class="as-body">
+                <span class="as-subject">${s.subject}</span>
+                <p class="as-goal">🎯 ${s.goal}</p>
+            </div>
+            <button class="connect-btn" onclick="connectStudent('${s.name}', '${s.subject}')">
+                🤝 Connect
+            </button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function connectStudent(name, subject) {
+    if (confirm(`Send a session offer to ${name} for ${subject}?`)) {
+        alert(`✅ Connection request sent to ${name}! They'll be notified to confirm.`);
+    }
 }
 
 function updateProgress(studentName) {

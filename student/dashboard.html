@@ -17,10 +17,11 @@
     <div class="dashboard-container">
         <aside class="sidebar">
             <div class="user-info">
-                <div class="user-avatar" id="userAvatar">S</div>
+                <div class="user-avatar" id="userAvatar">...</div>
                 <div>
-                    <strong id="userName">Student</strong>
-                    <p style="margin: 5px 0 0 0; font-size: 0.85em; color: var(--text-secondary-day);">Student Account
+                    <strong id="userName">Loading...</strong>
+                    <p style="margin: 5px 0 0 0; font-size: 0.85em; color: var(--text-secondary-day);" id="userRole">
+                        Student Account
                     </p>
                 </div>
             </div>
@@ -88,9 +89,14 @@
                             <option value="Available">✅ Available</option>
                             <option value="Busy">⏰ Busy</option>
                         </select>
-                        <input type="text" id="searchTutor" placeholder="🔍 Search tutor by name..."
-                            class="filter-input" oninput="filterTutors()">
+                        <div class="search-wrapper">
+                            <input type="text" id="searchTutor" placeholder="🔍 Search tutor by name..."
+                                class="filter-input" oninput="filterTutors()" autocomplete="off"
+                                onfocus="showSuggestions()" onblur="hideSuggestionsDelayed()">
+                            <div id="tutorSuggestions" class="tutor-suggestions" style="display:none;"></div>
+                        </div>
                     </div>
+                    <div class="filter-results" id="filterResults"></div>
                 </div>
 
                 <div class="tutor-grid" id="tutorGrid">

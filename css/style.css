@@ -662,15 +662,38 @@ footer {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     padding: 25px;
     border-radius: 12px;
     text-align: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(91, 124, 250, 0.25);
     position: relative;
     overflow: hidden;
+}
+
+/* Each card gets its own distinct colour */
+.stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    /* orange – Total */
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+}
+
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #10b981, #059669);
+    /* green – Completed */
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+
+.stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    /* purple – Upcoming */
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+}
+
+.stat-card:nth-child(4) {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    /* pink – Rating */
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35);
 }
 
 .stat-card::before {
@@ -680,22 +703,24 @@ footer {
     right: -50px;
     width: 100px;
     height: 100px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 50%;
 }
 
 .stat-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 8px 25px rgba(91, 124, 250, 0.35);
+    filter: brightness(1.08);
 }
 
 .stat-card h2 {
     font-size: 2.5em;
     margin: 10px 0;
+    font-weight: 800;
+    letter-spacing: -1px;
 }
 
 .stat-card p {
-    opacity: 0.9;
+    opacity: 0.92;
     font-size: 0.95em;
 }
 
@@ -1600,6 +1625,233 @@ footer {
 .btn-danger:hover {
     background: var(--error-color);
     color: white;
+}
+
+/* ===== SUGGESTION DROPDOWN ===== */
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+}
+
+.search-wrapper .filter-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tutor-suggestions {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card-day);
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(91, 124, 250, 0.18);
+    z-index: 999;
+    overflow: hidden;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.suggestion-item:hover {
+    background: rgba(91, 124, 250, 0.08);
+}
+
+.suggestion-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+    flex-shrink: 0;
+}
+
+.suggestion-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.suggestion-details strong {
+    font-size: 0.95em;
+    color: var(--text-day);
+}
+
+.suggestion-details span {
+    font-size: 0.8em;
+    color: var(--text-secondary-day);
+}
+
+.suggestion-tag {
+    font-size: 0.78em;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.tag-available {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success-color);
+}
+
+.tag-busy {
+    background: rgba(249, 115, 22, 0.15);
+    color: #f97316;
+}
+
+.filter-results {
+    margin-top: 10px;
+    padding: 0 4px;
+}
+
+.highlight-card {
+    animation: flashCard 2s ease;
+}
+
+@keyframes flashCard {
+
+    0%,
+    100% {
+        box-shadow: none;
+    }
+
+    30% {
+        box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.5);
+        transform: translateY(-4px);
+    }
+}
+
+/* ===== AVAILABLE STUDENTS SECTION (Tutor Dashboard) ===== */
+.available-students-section {
+    margin-top: 35px;
+}
+
+.section-subtitle {
+    color: var(--text-secondary-day);
+    font-size: 0.93em;
+    margin: -10px 0 18px 0;
+}
+
+.available-students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.available-student-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(91, 124, 250, 0.05) 100%);
+    border: 2px solid rgba(16, 185, 129, 0.25);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.3s ease;
+}
+
+.available-student-card:hover {
+    border-color: var(--success-color);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+    transform: translateY(-4px);
+}
+
+.as-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.as-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.as-info {
+    flex: 1;
+}
+
+.as-info h4 {
+    margin: 0 0 3px 0;
+    color: var(--text-day);
+    font-size: 1em;
+}
+
+.as-level {
+    font-size: 0.78em;
+    color: var(--text-secondary-day);
+    background: rgba(91, 124, 250, 0.1);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.as-time {
+    font-size: 0.76em;
+    color: var(--text-secondary-day);
+    white-space: nowrap;
+}
+
+.as-body {
+    margin-bottom: 14px;
+}
+
+.as-subject {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.as-goal {
+    font-size: 0.88em;
+    color: var(--text-secondary-day);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.connect-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95em;
+}
+
+.connect-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 /* Dashboard responsive styles */
