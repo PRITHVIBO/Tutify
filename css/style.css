@@ -75,6 +75,19 @@ form button {
     cursor: pointer;
 }
 
+/* Back to Home Button */
+.back-btn {
+    display: inline-block;
+    margin-top: 10px;
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+}
+
 /* Footer */
 footer {
     background-color: #eee;
