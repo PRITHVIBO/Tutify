@@ -42,6 +42,46 @@ Tutify solves this problem by providing a centralized platform where:
    Tutor updates learning progress. Student provides feedback and rating.
 
 ---
+**Start**  
+↓  
+**User Opens Tutify Platform**  
+↓  
+**User Selects Role (Student / Tutor)**  
+↓  
+**User Registers or Logs In**  
+↓  
+**Decision: Is User a Student?**
+---
+**Yes → Student Dashboard**  
+↓  
+**Search Tutor by Subject**  
+↓  
+**Select Tutor**  
+↓  
+**Book Session**  
+↓  
+**Attend Session**  
+↓  
+**View Progress**  
+↓  
+**Give Feedback**  
+↓  
+**End**
+---
+**No → Tutor Dashboard**  
+↓  
+**View Booking Requests**  
+↓  
+**Accept / Reject Session**  
+↓  
+**Conduct Session**  
+↓  
+**Update Student Progress**  
+↓  
+**Rating Updated**  
+↓  
+**End**
+---
 
 ## ✨ Key Features (Planned in 24 Hours)
 
@@ -69,8 +109,14 @@ Tutify solves this problem by providing a centralized platform where:
 - MySQL
 
 ---
+## 🖼️ Screenshots
+
+### Landing Page
 ![Landing Page](images/landing-page.png)
-[View Landing Page](index.html)
+
+[View Landing Page Source](index.html)
+
+---
 ## 🧱 Project Structure
 
 ```text
@@ -97,4 +143,3 @@ Tutify/
 │   ├── dashboard.html
 │   └── bookings.html
 └── README.md
-
