@@ -104,9 +104,10 @@
                 <h2>Session Bookings</h2>
                 <div class="bookings-container">
                     <div class="booking-tabs">
-                        <button class="tab-btn active" onclick="showBookingTab('upcoming', this)">📅 Upcoming</button>
-                        <button class="tab-btn" onclick="showBookingTab('completed', this)">✅ Completed</button>
-                        <button class="tab-btn" onclick="showBookingTab('cancelled', this)">❌ Cancelled</button>
+                        <button class="tab-btn active" onclick="showTutorBookingTab('pending', this)">📩 Requests</button>
+                        <button class="tab-btn" onclick="showTutorBookingTab('confirmed', this)">✅ Confirmed</button>
+                        <button class="tab-btn" onclick="showTutorBookingTab('completed', this)">📚 Completed</button>
+                        <button class="tab-btn" onclick="showTutorBookingTab('cancelled', this)">❌ Cancelled</button>
                     </div>
                     <div class="bookings-list" id="bookings-list">
                         <!-- Bookings will be loaded here -->

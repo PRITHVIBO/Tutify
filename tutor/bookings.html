@@ -19,14 +19,14 @@
         <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('pending')">⏳ Pending (3)</button>
-            <button class="tab-btn" onclick="showTab('confirmed')">✅ Confirmed (5)</button>
-            <button class="tab-btn" onclick="showTab('completed')">📚 Completed (42)</button>
-            <button class="tab-btn" onclick="showTab('rejected')">❌ Rejected (2)</button>
+            <button class="tab-btn active" onclick="showTutorBookingTab('pending', this)">📩 Requests</button>
+            <button class="tab-btn" onclick="showTutorBookingTab('confirmed', this)">✅ Confirmed</button>
+            <button class="tab-btn" onclick="showTutorBookingTab('completed', this)">📚 Completed</button>
+            <button class="tab-btn" onclick="showTutorBookingTab('cancelled', this)">❌ Cancelled</button>
         </div>
 
-        <div class="booking-list" id="bookingList">
-            <!-- Bookings will be loaded here -->
+        <div class="booking-list" id="bookings-list">
+            <!-- Bookings loaded by JS -->
         </div>
     </div>
 

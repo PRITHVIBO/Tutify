@@ -817,6 +817,25 @@ footer {
     box-shadow: 0 4px 15px rgba(91, 124, 250, 0.4);
 }
 
+/* Busy-tutor "Request Session" button */
+.book-btn-busy {
+    background: linear-gradient(135deg, #f0a500, #e07b00);
+}
+
+.book-btn-busy:hover {
+    box-shadow: 0 4px 15px rgba(240, 165, 0, 0.45);
+}
+
+/* Rate badge on tutor card */
+.tutor-rate {
+    font-weight: 700;
+    font-size: 0.9em;
+    color: var(--primary-color);
+    background: rgba(91, 124, 250, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
 .filter-section {
     margin-bottom: 25px;
     padding: 20px;
@@ -2045,4 +2064,28 @@ footer {
     .modal-row {
         grid-template-columns: 1fr;
     }
+}
+
+/* ── Modal enhancements ─────────────────────────────────── */
+.modal-readonly {
+    background: rgba(91, 124, 250, 0.06) !important;
+    color: var(--text-day);
+    font-weight: 600;
+    cursor: default;
+}
+
+.modal-rate-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-rate-badge {
+    font-size: 1.08em;
+    font-weight: 700;
+    color: var(--primary-color);
+    background: rgba(91, 124, 250, 0.1);
+    padding: 4px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
 }

@@ -537,28 +537,37 @@ function loadStudentDashboard() {
     loadTutors();
 }
 
-// ── Booking storage helpers ──────────────────────────────────────────
-function getBookingKey() {
-    const u = getCurrentUser();
-    return u ? `bookings_${u.email}` : 'bookings_guest';
+// ── Shared Global Booking Store ─────────────────────────────────────
+// All bookings (from students AND tutors) live in one global array so
+// both sides can read/update the same records.
+const GLOBAL_BOOKINGS_KEY = 'tutify_all_bookings';
+
+function getGlobalBookings() {
+    return JSON.parse(localStorage.getItem(GLOBAL_BOOKINGS_KEY) || '[]');
 }
-function getUserBookings() {
-    return JSON.parse(localStorage.getItem(getBookingKey()) || '[]');
+function saveGlobalBookings(bookings) {
+    localStorage.setItem(GLOBAL_BOOKINGS_KEY, JSON.stringify(bookings));
 }
-function saveUserBookings(bookings) {
-    localStorage.setItem(getBookingKey(), JSON.stringify(bookings));
+// Helpers to filter by perspective
+function getStudentBookings(email) {
+    return getGlobalBookings().filter(b => b.studentEmail === email);
+}
+function getTutorBookings(tutorName) {
+    return getGlobalBookings().filter(b => b.tutorName === tutorName);
 }
 
 function loadDashboardData() {
-    const bookings = getUserBookings();
-    const total = bookings.length;
+    const user = getCurrentUser();
+    if (!user) return;
+    const bookings = getStudentBookings(user.email);
+    const total    = bookings.length;
     const completed = bookings.filter(b => b.status === 'completed').length;
-    const upcoming = bookings.filter(b => b.status === 'upcoming').length;
-
-    // Average rating from completed sessions that have a rating
-    const rated = bookings.filter(b => b.rating && b.rating > 0);
-    const avg = rated.length ? (rated.reduce((s, b) => s + b.rating, 0) / rated.length).toFixed(1) : '—';
-
+    // count confirmed + pending as upcoming
+    const upcoming  = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
+    const rated     = bookings.filter(b => b.rating && b.rating > 0);
+    const avg = rated.length
+        ? (rated.reduce((s, b) => s + b.rating, 0) / rated.length).toFixed(1)
+        : '—';
     const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     setEl('totalSessions', total);
     setEl('completedSessions', completed);
@@ -568,21 +577,18 @@ function loadDashboardData() {
 
 function loadTutors() {
     const tutors = [
-        { id: 1, name: 'Dr. Sarah Johnson', subject: 'Mathematics', experience: '10 years', rating: 4.8, sessions: 150, availability: 'Available', description: 'Expert in Advanced Mathematics and Calculus' },
-        { id: 2, name: 'Prof. Michael Chen', subject: 'Physics', experience: '8 years', rating: 4.9, sessions: 120, availability: 'Available', description: 'Specialized in Quantum Physics and Mechanics' },
-        { id: 3, name: 'Ms. Emily Davis', subject: 'Chemistry', experience: '5 years', rating: 4.7, sessions: 90, availability: 'Busy', description: 'Organic Chemistry and Lab Techniques' },
-        { id: 4, name: 'Dr. Robert Brown', subject: 'Biology', experience: '12 years', rating: 4.9, sessions: 200, availability: 'Available', description: 'Molecular Biology and Genetics Expert' },
-        { id: 5, name: 'Ms. Lisa Anderson', subject: 'English', experience: '6 years', rating: 4.6, sessions: 85, availability: 'Available', description: 'Literature and Advanced Writing Skills' },
-        { id: 6, name: 'Mr. David Wilson', subject: 'Computer Science', experience: '7 years', rating: 4.8, sessions: 110, availability: 'Available', description: 'Programming and Data Structures' },
-        { id: 7, name: 'Dr. Priya Sharma', subject: 'Mathematics', experience: '9 years', rating: 4.7, sessions: 130, availability: 'Available', description: 'Algebra, Geometry and IB Math' },
-        { id: 8, name: 'Mr. Carlos Ruiz', subject: 'History', experience: '4 years', rating: 4.5, sessions: 60, availability: 'Busy', description: 'World History and AP History prep' },
-        { id: 9, name: 'Ms. Hannah Park', subject: 'Computer Science', experience: '5 years', rating: 4.8, sessions: 95, availability: 'Available', description: 'Python, Java and Web Development' }
+        { id: 1, name: 'Dr. Sarah Johnson', subject: 'Mathematics', experience: '10 years', rating: 4.8, sessions: 150, availability: 'Available', rate: 50, description: 'Expert in Advanced Mathematics and Calculus' },
+        { id: 2, name: 'Prof. Michael Chen', subject: 'Physics', experience: '8 years', rating: 4.9, sessions: 120, availability: 'Available', rate: 55, description: 'Specialized in Quantum Physics and Mechanics' },
+        { id: 3, name: 'Ms. Emily Davis', subject: 'Chemistry', experience: '5 years', rating: 4.7, sessions: 90, availability: 'Busy', rate: 45, description: 'Organic Chemistry and Lab Techniques' },
+        { id: 4, name: 'Dr. Robert Brown', subject: 'Biology', experience: '12 years', rating: 4.9, sessions: 200, availability: 'Available', rate: 60, description: 'Molecular Biology and Genetics Expert' },
+        { id: 5, name: 'Ms. Lisa Anderson', subject: 'English', experience: '6 years', rating: 4.6, sessions: 85, availability: 'Available', rate: 40, description: 'Literature and Advanced Writing Skills' },
+        { id: 6, name: 'Mr. David Wilson', subject: 'Computer Science', experience: '7 years', rating: 4.8, sessions: 110, availability: 'Available', rate: 50, description: 'Programming and Data Structures' },
+        { id: 7, name: 'Dr. Priya Sharma', subject: 'Mathematics', experience: '9 years', rating: 4.7, sessions: 130, availability: 'Available', rate: 48, description: 'Algebra, Geometry and IB Math' },
+        { id: 8, name: 'Mr. Carlos Ruiz', subject: 'History', experience: '4 years', rating: 4.5, sessions: 60, availability: 'Busy', rate: 38, description: 'World History and AP History prep' },
+        { id: 9, name: 'Ms. Hannah Park', subject: 'Computer Science', experience: '5 years', rating: 4.8, sessions: 95, availability: 'Available', rate: 45, description: 'Python, Java and Web Development' }
     ];
 
     window.allTutors = tutors;
-    // Default: show only available tutors
-    const availEl = document.getElementById('availabilityFilter');
-    if (availEl && !availEl.value) availEl.value = 'Available';
     filterTutors();
 }
 
@@ -598,6 +604,12 @@ function displayTutors(tutors) {
     }
 
     tutors.forEach(tutor => {
+        const isBusy = tutor.availability === 'Busy';
+        const rate = tutor.rate ? '$' + tutor.rate + '/hr' : '$40/hr';
+        const availColor = isBusy ? 'var(--warning-color)' : 'var(--success-color)';
+        const availIcon  = isBusy ? '⏰' : '✅';
+        const btnClass   = isBusy ? 'book-btn book-btn-busy' : 'book-btn';
+        const btnLabel   = isBusy ? '⏰ Request Session' : '📅 Book Session';
         const card = document.createElement('div');
         card.className = 'tutor-card';
         card.innerHTML = `
@@ -612,13 +624,12 @@ function displayTutors(tutors) {
                 <span class="tutor-subject">${tutor.subject}</span>
                 <div class="rating">⭐ ${tutor.rating} (${tutor.sessions} sessions)</div>
                 <p style="color: var(--text-secondary-day); font-size: 0.9em; margin-top: 10px;">${tutor.description}</p>
-                <p style="margin-top: 10px; font-weight: 600; color: ${tutor.availability === 'Available' ? 'var(--success-color)' : 'var(--warning-color)'};">
-                    ${tutor.availability === 'Available' ? '✅' : '⏰'} ${tutor.availability}
-                </p>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 10px;">
+                    <p style="font-weight:600; color:${availColor};">${availIcon} ${tutor.availability}</p>
+                    <span class="tutor-rate">💰 ${rate}</span>
+                </div>
             </div>
-            <button class="book-btn" onclick="bookSessionNow(${tutor.id}, '${tutor.name}')">
-                📅 Book Session
-            </button>
+            <button class="${btnClass}" onclick="bookSessionNow(${tutor.id}, '${tutor.name}')">${btnLabel}</button>
         `;
         grid.appendChild(card);
     });
@@ -714,12 +725,21 @@ function hideSuggestionsDelayed() {
 function bookSessionNow(tutorId, tutorName) {
     const tutor = (window.allTutors || []).find(t => t.id === tutorId);
     const subject = tutor?.subject || 'General';
+    const rate = tutor?.rate ? `$${tutor.rate}/hr` : '$40/hr';
+    const isBusy = tutor?.availability === 'Busy';
 
     // Pre-fill modal
     document.getElementById('modalTutorName').value = tutorName;
     document.getElementById('modalSubject').value = subject;
     document.getElementById('modalTopic').value = '';
     document.getElementById('modalMessage').value = '';
+    const rateEl = document.getElementById('modalRateDisplay');
+    if (rateEl) rateEl.textContent = rate;
+    const levelEl = document.getElementById('modalLevel');
+    if (levelEl) levelEl.value = 'Beginner';
+    // Update modal header hint if tutor is busy
+    const modalHint = document.getElementById('modalBusyHint');
+    if (modalHint) modalHint.style.display = isBusy ? 'block' : 'none';
 
     // Default date = 3 days from today, time = 10:00
     const defaultDate = new Date();
@@ -743,51 +763,56 @@ function closeBookingModal() {
 
 function submitStudentBooking(event) {
     event.preventDefault();
-    const form = document.getElementById('bookingForm');
+    const form      = document.getElementById('bookingForm');
     const tutorName = form.dataset.tutorName;
+    const user      = getCurrentUser();
 
     const booking = {
-        id: Date.now(),
-        person: tutorName,
-        subject: document.getElementById('modalSubject').value,
-        topic: document.getElementById('modalTopic').value,
-        date: document.getElementById('modalDate').value,
-        time: formatTime12(document.getElementById('modalTime').value),
-        duration: document.getElementById('modalDuration').value,
-        message: document.getElementById('modalMessage').value,
-        rate: '$40',
-        status: 'upcoming',
-        rating: 0
+        id:           Date.now(),
+        studentName:  user ? (user.name || user.email) : 'Student',
+        studentEmail: user ? user.email : '',
+        tutorName:    tutorName,
+        subject:      document.getElementById('modalSubject').value,
+        topic:        document.getElementById('modalTopic').value,
+        date:         document.getElementById('modalDate').value,
+        time:         formatTime12(document.getElementById('modalTime').value),
+        duration:     document.getElementById('modalDuration').value,
+        message:      document.getElementById('modalMessage').value,
+        rate:         (() => { const t = (window.allTutors || []).find(x => x.id === parseInt(form.dataset.tutorId)); return t?.rate ? `$${t.rate}` : '$40'; })(),
+        level:        document.getElementById('modalLevel')?.value || 'Beginner',
+        status:       'pending',   // tutor must accept
+        bookedBy:     'student',
+        rating:       0,
+        createdAt:    new Date().toISOString()
     };
 
-    const bookings = getUserBookings();
-    bookings.push(booking);
-    saveUserBookings(bookings);
+    const all = getGlobalBookings();
+    all.push(booking);
+    saveGlobalBookings(all);
 
     closeBookingModal();
     loadDashboardData();
-
-    // Flash success notification
-    showToast(`✅ Session booked with ${tutorName}! Check 📅 My Bookings.`, 'success');
+    showToast(`📩 Request sent to ${tutorName}! Waiting for confirmation.`, 'info');
 }
 
 function showSection(section) {
-    // Hide all sections
     const sections = ['dashboard', 'bookings', 'settings'];
     sections.forEach(s => {
         const el = document.getElementById(s + '-section');
         if (el) el.style.display = 'none';
     });
-
-    // Update active nav link
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     const navEl = document.getElementById('nav-' + section);
     if (navEl) navEl.classList.add('active');
 
-    // Show requested section
     if (section === 'bookings') {
         document.getElementById('bookings-section').style.display = 'block';
-        loadBookings();
+        const user = getCurrentUser();
+        if (user && user.role === 'tutor') {
+            loadTutorBookingsSection();
+        } else {
+            loadBookings(); // student default = pending tab
+        }
     } else if (section === 'settings') {
         document.getElementById('settings-section').style.display = 'block';
         loadSettings();
@@ -798,75 +823,104 @@ function showSection(section) {
     return false;
 }
 
+// ── Student booking tabs ─────────────────────────────────────────────
 function showBookingTab(tab, btnEl) {
-    // Update active tab button
-    const tabs = document.querySelectorAll('.tab-btn');
-    tabs.forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#bookings-section .tab-btn').forEach(t => t.classList.remove('active'));
     if (btnEl) btnEl.classList.add('active');
     loadBookingsByTab(tab);
 }
 
 function loadBookings() {
-    loadBookingsByTab('upcoming');
+    loadBookingsByTab('pending');
 }
 
 function loadBookingsByTab(tab) {
     const bookingsList = document.getElementById('bookings-list');
     if (!bookingsList) return;
+    const user = getCurrentUser();
+    if (!user) return;
 
-    const userData = getCurrentUser();
-    const isTutor = userData && userData.role === 'tutor';
-    const personLabel = isTutor ? 'Student' : 'Tutor';
-
-    const allBookings = getUserBookings();
-    const filtered = allBookings.filter(b => b.status === tab);
+    const filtered = getStudentBookings(user.email).filter(b => b.status === tab);
     bookingsList.innerHTML = '';
 
     if (filtered.length === 0) {
-        bookingsList.innerHTML = `<div class="empty-state"><p>📭 No ${tab} sessions found.</p></div>`;
+        const labels = { pending:'pending', confirmed:'confirmed', completed:'completed', cancelled:'cancelled' };
+        bookingsList.innerHTML = `
+            <div class="empty-state">
+                <div style="font-size:2.5em; margin-bottom:10px;">📭</div>
+                <p style="color:var(--text-secondary-day);">No ${labels[tab] || tab} bookings found.</p>
+            </div>`;
         return;
     }
 
     filtered.forEach(booking => {
-        const bookingDiv = document.createElement('div');
-        bookingDiv.className = 'booking-card';
-        bookingDiv.innerHTML = `
+        const isConfirmed  = booking.status === 'confirmed';
+        const isPending    = booking.status === 'pending';
+        const isCompleted  = booking.status === 'completed';
+        const isCancelled  = booking.status === 'cancelled';
+
+        const statusMap = {
+            pending:   { label:'⏳ Awaiting Tutor', cls:'status-pending' },
+            confirmed: { label:'✅ Confirmed',       cls:'status-confirmed' },
+            completed: { label:'📚 Completed',       cls:'status-completed' },
+            cancelled: { label:'❌ Cancelled',       cls:'status-cancelled' }
+        };
+        const s = statusMap[booking.status] || { label: booking.status, cls: '' };
+
+        const actions = isPending ? `
+            <div class="booking-actions">
+                <button class="btn-danger" onclick="cancelStudentBooking(${booking.id})">❌ Cancel Request</button>
+            </div>` :
+            isConfirmed ? `
+            <div class="booking-actions">
+                <button class="btn-danger" onclick="cancelStudentBooking(${booking.id})">❌ Cancel Session</button>
+            </div>` :
+            isCompleted ? `
+            <div class="booking-actions">
+                <button class="btn-primary" onclick="leaveReview(${booking.id}, '${booking.tutorName}')">⭐ Leave Review</button>
+            </div>` : '';
+
+        const div = document.createElement('div');
+        div.className = 'booking-card';
+        div.innerHTML = `
             <div class="booking-card-header">
                 <div class="booking-info">
-                    <h4>📚 ${booking.subject}</h4>
-                    <p><strong>${personLabel}:</strong> ${booking.person}</p>
+                    <h4>📚 ${booking.subject}${booking.topic ? ' — ' + booking.topic : ''}</h4>
+                    <p><strong>👨‍🏫 Tutor:</strong> ${booking.tutorName}</p>
                     <p><strong>📅 Date:</strong> ${booking.date} at ${booking.time}</p>
-                    <p><strong>⏱️ Duration:</strong> ${booking.duration} &nbsp;|&nbsp; <strong>💰 Rate:</strong> ${booking.rate}/hr</p>
+                    <p><strong>⏱️ Duration:</strong> ${booking.duration}&nbsp;|&nbsp;<strong>💰 Rate:</strong> ${booking.rate}/hr${booking.level ? `&nbsp;|&nbsp;<strong>🎯 Level:</strong> ${booking.level}` : ''}</p>
+                    ${booking.message ? `<p style="margin-top:8px;"><strong>📝 Note:</strong> ${booking.message}</p>` : ''}
                 </div>
-                <span class="status-badge status-${booking.status}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
+                <span class="status-badge ${s.cls}">${s.label}</span>
             </div>
-            ${booking.status === 'upcoming' ? `
-                <div class="booking-actions">
-                    <button class="btn-primary" onclick="alert('Reschedule request sent!')">📅 Reschedule</button>
-                    <button class="btn-danger" onclick="cancelBooking(${booking.id})">❌ Cancel</button>
-                </div>
-            ` : booking.status === 'completed' ? `
-                <div class="booking-actions">
-                    <button class="btn-primary" onclick="alert('Review submitted!')">⭐ Leave Review</button>
-                </div>
-            ` : ''}
+            ${actions}
         `;
-        bookingsList.appendChild(bookingDiv);
+        bookingsList.appendChild(div);
     });
 }
 
-function cancelBooking(id) {
-    if (confirm('Are you sure you want to cancel this session?')) {
-        const bookings = getUserBookings();
-        const idx = bookings.findIndex(b => b.id === id);
-        if (idx !== -1) {
-            bookings[idx].status = 'cancelled';
-            saveUserBookings(bookings);
-        }
-        loadDashboardData();      // refresh stat cards
-        loadBookingsByTab('upcoming'); // stay on upcoming tab
-        alert('✅ Session cancelled successfully.');
-    }
+function cancelStudentBooking(id) {
+    if (!confirm('Cancel this booking?')) return;
+    const all = getGlobalBookings();
+    const idx = all.findIndex(b => b.id === id);
+    if (idx !== -1) all[idx].status = 'cancelled';
+    saveGlobalBookings(all);
+    loadDashboardData();
+    loadBookingsByTab('pending');
+    showToast('✅ Booking cancelled.', 'info');
+}
+
+function leaveReview(id, tutorName) {
+    const stars = prompt(`Rate your session with ${tutorName} (1–5):`);
+    if (!stars || isNaN(stars) || stars < 1 || stars > 5) return;
+    const feedback = prompt('Share your experience (optional):') || '';
+    const all = getGlobalBookings();
+    const idx = all.findIndex(b => b.id === id);
+    if (idx !== -1) { all[idx].rating = parseInt(stars); all[idx].feedback = feedback; }
+    saveGlobalBookings(all);
+    loadDashboardData();
+    showToast('⭐ Thank you for your review!', 'success');
+    loadBookingsByTab('completed');
 }
 
 function loadSettings() {
@@ -1260,34 +1314,36 @@ function closeTutorBookingModal() {
 
 function submitTutorBooking(event) {
     event.preventDefault();
-    const form = document.getElementById('tutorBookingForm');
+    const form        = document.getElementById('tutorBookingForm');
     const studentName = form.dataset.studentName;
-    const subject = document.getElementById('tModalSubject').value;
-    const topic = document.getElementById('tModalTopic').value;
-    const date = document.getElementById('tModalDate').value;
-    const time = formatTime12(document.getElementById('tModalTime').value);
-    const duration = document.getElementById('tModalDuration').value;
-    const notes = document.getElementById('tModalNotes').value;
+    const user        = getCurrentUser();
+    const subject     = document.getElementById('tModalSubject').value;
+    const topic       = document.getElementById('tModalTopic').value;
+    const date        = document.getElementById('tModalDate').value;
+    const time        = formatTime12(document.getElementById('tModalTime').value);
+    const duration    = document.getElementById('tModalDuration').value;
+    const notes       = document.getElementById('tModalNotes').value;
 
     const booking = {
-        id: Date.now(),
-        person: studentName,
-        subject: subject,
-        topic: topic,
-        date: date,
-        time: time,
-        duration: duration,
-        notes: notes,
-        rate: '$40',
-        status: 'upcoming',
-        bookedBy: 'tutor'
+        id:           Date.now(),
+        studentName:  studentName,
+        studentEmail: '',          // tutor-initiated; student email not known here
+        tutorName:    user ? (user.name || user.email) : 'Tutor',
+        subject, topic, date, time, duration,
+        message:   notes,
+        rate:      '$40',
+        status:    'confirmed',    // tutor-initiated = auto-confirmed
+        bookedBy:  'tutor',
+        rating:    0,
+        createdAt: new Date().toISOString()
     };
 
-    const bookings = getUserBookings();
-    bookings.push(booking);
-    saveUserBookings(bookings);
+    const all = getGlobalBookings();
+    all.push(booking);
+    saveGlobalBookings(all);
 
     closeTutorBookingModal();
+    loadTutorBookingsSection();
     showToast(`✅ Session scheduled with ${studentName} on ${date} at ${time}!`, 'success');
 }
 
@@ -1307,239 +1363,165 @@ function editProfile() {
 }
 
 // ===== TUTOR BOOKINGS FUNCTIONS =====
+// All data lives in the shared global store (GLOBAL_BOOKINGS_KEY).
 
-let currentBookingTab = 'pending';
+// Called when tutor opens the "Session Bookings" section.
+function loadTutorBookingsSection() {
+    // Activate the Requests (pending) tab by default
+    const firstBtn = document.querySelector('#bookings-section .tab-btn');
+    document.querySelectorAll('#bookings-section .tab-btn').forEach(b => b.classList.remove('active'));
+    if (firstBtn) firstBtn.classList.add('active');
+    loadTutorBookingsByTab('pending');
+}
 
-const bookingsData = {
-    pending: [
-        {
-            id: 1,
-            student: 'Alex Johnson',
-            subject: 'Advanced Mathematics',
-            topic: 'Calculus Integration',
-            date: '2026-02-25',
-            time: '10:00 AM',
-            duration: '2 hours',
-            level: 'Advanced',
-            message: 'Need help with integration techniques'
-        },
-        {
-            id: 2,
-            student: 'Maria Garcia',
-            subject: 'Statistics',
-            topic: 'Probability Theory',
-            date: '2026-02-26',
-            time: '2:00 PM',
-            duration: '1.5 hours',
-            level: 'Intermediate',
-            message: 'Struggling with conditional probability'
-        },
-        {
-            id: 3,
-            student: 'James Lee',
-            subject: 'Algebra',
-            topic: 'Quadratic Equations',
-            date: '2026-02-27',
-            time: '4:00 PM',
-            duration: '1 hour',
-            level: 'Beginner',
-            message: 'First time learning quadratics'
-        }
-    ],
-    confirmed: [
-        {
-            id: 4,
-            student: 'Emma Wilson',
-            subject: 'Trigonometry',
-            topic: 'Sin, Cos, Tan Functions',
-            date: '2026-02-22',
-            time: '3:00 PM',
-            duration: '2 hours',
-            level: 'Intermediate'
-        },
-        {
-            id: 5,
-            student: 'Oliver Brown',
-            subject: 'Geometry',
-            topic: 'Circle Theorems',
-            date: '2026-02-23',
-            time: '11:00 AM',
-            duration: '1.5 hours',
-            level: 'Intermediate'
-        }
-    ],
-    completed: [
-        {
-            id: 6,
-            student: 'Sophia Davis',
-            subject: 'Calculus',
-            topic: 'Derivatives',
-            date: '2026-02-15',
-            time: '1:00 PM',
-            duration: '2 hours',
-            level: 'Advanced',
-            rating: 5,
-            feedback: 'Excellent session! Very helpful.'
-        }
-    ],
-    rejected: [
-        {
-            id: 7,
-            student: 'Noah Martinez',
-            subject: 'Advanced Calculus',
-            topic: 'Differential Equations',
-            date: '2026-02-20',
-            time: '9:00 AM',
-            duration: '3 hours',
-            level: 'Advanced',
-            reason: 'Schedule conflict'
-        }
-    ]
-};
+// Tab switcher for tutor booking tabs
+function showTutorBookingTab(tab, btnEl) {
+    document.querySelectorAll('#bookings-section .tab-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    loadTutorBookingsByTab(tab);
+}
 
+function loadTutorBookingsByTab(tab) {
+    const list = document.getElementById('bookings-list');
+    if (!list) return;
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const tutorName = user.name || user.email;
+    const all     = getTutorBookings(tutorName);
+    const items   = all.filter(b => b.status === tab);
+
+    list.innerHTML = '';
+
+    if (items.length === 0) {
+        const emptyMsg = {
+            pending:   'No pending requests from students.',
+            confirmed: 'No confirmed sessions yet.',
+            completed: 'No completed sessions.',
+            cancelled: 'No cancelled sessions.'
+        };
+        list.innerHTML = `
+            <div class="empty-state">
+                <div style="font-size:2.5em; margin-bottom:10px;">${tab === 'pending' ? '📩' : '📭'}</div>
+                <p style="color:var(--text-secondary-day);">${emptyMsg[tab] || 'Nothing here.'}</p>
+            </div>`;
+        return;
+    }
+
+    items.forEach(booking => {
+        const div = document.createElement('div');
+        div.className = `booking-item booking-${tab}`;
+
+        const statusMap = {
+            pending:   '<span class="booking-status status-pending">⏳ Awaiting Response</span>',
+            confirmed: '<span class="booking-status status-confirmed">✅ Confirmed</span>',
+            completed: '<span class="booking-status status-completed">📚 Completed</span>',
+            cancelled: '<span class="booking-status status-rejected">❌ Cancelled</span>'
+        };
+        const badge = statusMap[booking.status] || '';
+
+        let actions = '';
+        if (tab === 'pending') {
+            actions = `
+                <div class="booking-actions">
+                    <button class="accept-btn" onclick="acceptBooking(${booking.id}, '${booking.studentName}')">
+                        ✅ Accept
+                    </button>
+                    <button class="reject-btn" onclick="rejectBooking(${booking.id}, '${booking.studentName}')">
+                        ❌ Reject
+                    </button>
+                </div>`;
+        } else if (tab === 'confirmed') {
+            actions = `
+                <div class="booking-actions">
+                    <button class="complete-btn" onclick="completeBooking(${booking.id}, '${booking.studentName}')">
+                        ✔️ Mark Complete
+                    </button>
+                </div>`;
+        }
+
+        const displayDate = (() => {
+            try { return new Date(booking.date).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }); }
+            catch { return booking.date; }
+        })();
+
+        div.innerHTML = `
+            <div class="booking-header">
+                <div class="student-details">
+                    <div class="student-avatar">${booking.studentName ? booking.studentName[0] : '?'}</div>
+                    <div>
+                        <div class="booking-title">${booking.studentName}</div>
+                        <p style="color:var(--text-secondary-day); margin:5px 0;">
+                            ${booking.subject}${booking.topic ? ' — ' + booking.topic : ''}
+                        </p>
+                    </div>
+                </div>
+                ${badge}
+            </div>
+            <div class="booking-details">
+                <div class="detail-item"><span>📅</span><span>${displayDate}</span></div>
+                <div class="detail-item"><span>🕒</span><span>${booking.time}</span></div>
+                <div class="detail-item"><span>⏱️</span><span>${booking.duration}</span></div>
+                <div class="detail-item"><span>💰</span><span>${booking.rate}/hr</span></div>
+            </div>
+            ${booking.message ? `<p style="padding:12px; background:rgba(91,124,250,0.05); border-radius:8px; margin-top:10px;">
+                <strong>📝 Student Note:</strong> ${booking.message}</p>` : ''}
+            ${booking.feedback ? `<p style="padding:12px; background:rgba(16,185,129,0.1); border-radius:8px; margin-top:10px;">
+                <strong>Rating:</strong> ${'\u2b50'.repeat(booking.rating)}<br>
+                <strong>Feedback:</strong> ${booking.feedback}</p>` : ''}
+            ${booking.rejectionReason ? `<p style="padding:12px; background:rgba(239,68,68,0.1); border-radius:8px; margin-top:10px;">
+                <strong>Rejection Reason:</strong> ${booking.rejectionReason}</p>` : ''}
+            ${actions}
+        `;
+        list.appendChild(div);
+    });
+}
+
+function acceptBooking(id, studentName) {
+    if (!confirm(`Accept booking request from ${studentName}?`)) return;
+    const all = getGlobalBookings();
+    const idx = all.findIndex(b => b.id === id);
+    if (idx !== -1) all[idx].status = 'confirmed';
+    saveGlobalBookings(all);
+    loadTutorBookingsByTab('pending');
+    showToast(`✅ Booking accepted! ${studentName} will see it as Confirmed.`, 'success');
+}
+
+function rejectBooking(id, studentName) {
+    const reason = prompt(`Reason for rejecting ${studentName}'s request (required):`);
+    if (!reason) return;
+    const all = getGlobalBookings();
+    const idx = all.findIndex(b => b.id === id);
+    if (idx !== -1) {
+        all[idx].status = 'cancelled';
+        all[idx].rejectionReason = reason;
+    }
+    saveGlobalBookings(all);
+    loadTutorBookingsByTab('pending');
+    showToast(`🗭 Booking rejected. ${studentName} has been notified.`, 'info');
+}
+
+function completeBooking(id, studentName) {
+    if (!confirm(`Mark session with ${studentName} as complete?`)) return;
+    const all = getGlobalBookings();
+    const idx = all.findIndex(b => b.id === id);
+    if (idx !== -1) all[idx].status = 'completed';
+    saveGlobalBookings(all);
+    loadTutorBookingsByTab('confirmed');
+    showToast(`📚 Session with ${studentName} marked as completed!`, 'success');
+}
+
+// Legacy shim — tutor/bookings.html still calls loadTutorBookings on load
 function loadTutorBookings() {
     const userData = JSON.parse(localStorage.getItem('user') || '{}');
     if (!userData.email || userData.role !== 'tutor') {
         window.location.href = '../login.html';
         return;
     }
-
-    showTab('pending');
+    loadTutorBookingsByTab('pending');
 }
 
-function showTab(tab) {
-    currentBookingTab = tab;
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-
-    loadBookings(tab);
-}
-
-function loadBookings(status) {
-    const bookingList = document.getElementById('bookingList');
-    if (!bookingList) return;
-
-    const bookings = bookingsData[status] || [];
-
-    if (bookings.length === 0) {
-        bookingList.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">📭</div>
-                <h3>No ${status} bookings</h3>
-                <p>You don't have any ${status} session bookings at the moment.</p>
-            </div>
-        `;
-        return;
-    }
-
-    bookingList.innerHTML = '';
-
-    bookings.forEach(booking => {
-        const bookingDiv = document.createElement('div');
-        bookingDiv.className = `booking-item booking-${status}`;
-
-        let statusBadge = '';
-        let actions = '';
-
-        if (status === 'pending') {
-            statusBadge = '<span class="booking-status status-pending">⏳ Pending</span>';
-            actions = `
-                <div class="booking-actions">
-                    <button class="accept-btn" onclick="acceptBooking(${booking.id}, '${booking.student}')">
-                        ✅ Accept
-                    </button>
-                    <button class="reject-btn" onclick="rejectBooking(${booking.id}, '${booking.student}')">
-                        ❌ Reject
-                    </button>
-                </div>
-            `;
-        } else if (status === 'confirmed') {
-            statusBadge = '<span class="booking-status status-confirmed">✅ Confirmed</span>';
-            actions = `
-                <div class="booking-actions">
-                    <button class="complete-btn" onclick="completeBooking(${booking.id}, '${booking.student}')">
-                        ✔️ Mark as Complete
-                    </button>
-                </div>
-            `;
-        } else if (status === 'completed') {
-            statusBadge = '<span class="booking-status status-completed">📚 Completed</span>';
-        } else if (status === 'rejected') {
-            statusBadge = '<span class="booking-status status-rejected">❌ Rejected</span>';
-        }
-
-        bookingDiv.innerHTML = `
-            <div class="booking-header">
-                <div class="student-details">
-                    <div class="student-avatar">${booking.student[0]}</div>
-                    <div>
-                        <div class="booking-title">${booking.student}</div>
-                        <p style="color: var(--text-secondary-day); margin: 5px 0;">${booking.subject} - ${booking.topic}</p>
-                    </div>
-                </div>
-                ${statusBadge}
-            </div>
-
-            <div class="booking-details">
-                <div class="detail-item">
-                    <span>📅</span>
-                    <span>${new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-                </div>
-                <div class="detail-item">
-                    <span>🕒</span>
-                    <span>${booking.time}</span>
-                </div>
-                <div class="detail-item">
-                    <span>⏱️</span>
-                    <span>${booking.duration}</span>
-                </div>
-                <div class="detail-item">
-                    <span>📊</span>
-                    <span>${booking.level} Level</span>
-                </div>
-            </div>
-
-            ${booking.message ? `<p style="padding: 12px; background: rgba(91, 124, 250, 0.05); border-radius: 8px; margin-top: 10px;"><strong>Message:</strong> ${booking.message}</p>` : ''}
-            ${booking.feedback ? `<p style="padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; margin-top: 10px;"><strong>Rating:</strong> ${'⭐'.repeat(booking.rating)}<br><strong>Feedback:</strong> ${booking.feedback}</p>` : ''}
-            ${booking.reason ? `<p style="padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; margin-top: 10px;"><strong>Rejection Reason:</strong> ${booking.reason}</p>` : ''}
-            
-            ${actions}
-        `;
-
-        bookingList.appendChild(bookingDiv);
-    });
-}
-
-function acceptBooking(id, student) {
-    if (confirm(`Accept booking request from ${student}?`)) {
-        alert(`Booking accepted! ${student} will be notified.`);
-        showTab('confirmed');
-    }
-}
-
-function rejectBooking(id, student) {
-    const reason = prompt(`Provide a reason for rejecting ${student}'s booking:`);
-    if (reason) {
-        alert(`Booking rejected. ${student} will be notified with your reason.`);
-        showTab('rejected');
-    }
-}
-
-function completeBooking(id, student) {
-    if (confirm(`Mark session with ${student} as complete?`)) {
-        const progress = prompt('Update student progress (0-100):');
-        if (progress !== null) {
-            const notes = prompt('Add session notes:');
-            if (notes) {
-                alert(`Session marked as complete! Progress updated for ${student}.`);
-                showTab('completed');
-            }
-        }
-    }
-}
 
 // ===== Landing/Login/Register Page Logic =====
 

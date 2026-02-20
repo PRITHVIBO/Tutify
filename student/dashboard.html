@@ -107,10 +107,14 @@
             <!-- Bookings Section -->
             <section id="bookings-section" style="display: none;">
                 <h2>My Bookings</h2>
+                <div style="margin-bottom: 16px;">
+                    <button class="btn-primary" onclick="showSection('dashboard')" style="font-size:0.9em;">🔍 Find a Tutor &amp; Book</button>
+                </div>
                 <div class="bookings-container">
                     <div class="booking-tabs">
-                        <button class="tab-btn active" onclick="showBookingTab('upcoming', this)">📅 Upcoming</button>
-                        <button class="tab-btn" onclick="showBookingTab('completed', this)">✅ Completed</button>
+                        <button class="tab-btn active" onclick="showBookingTab('pending', this)">⏳ Pending</button>
+                        <button class="tab-btn" onclick="showBookingTab('confirmed', this)">✅ Confirmed</button>
+                        <button class="tab-btn" onclick="showBookingTab('completed', this)">📚 Completed</button>
                         <button class="tab-btn" onclick="showBookingTab('cancelled', this)">❌ Cancelled</button>
                     </div>
                     <div id="bookings-list" class="bookings-list">
@@ -189,15 +193,23 @@
                 <h3>📅 Book a Session</h3>
                 <button class="modal-close" onclick="closeBookingModal()">✕</button>
             </div>
+            <!-- Shown only when tutor is Busy -->
+            <div id="modalBusyHint" style="display:none; background:#fff3cd; border-left:4px solid #f0ad4e; padding:8px 14px; font-size:0.88em; color:#856404; margin: 0 20px 4px;">⏰ This tutor is currently busy. Your request will be added to their queue.</div>
             <form id="bookingForm" onsubmit="submitStudentBooking(event)">
                 <div class="modal-body">
-                    <div class="modal-field">
-                        <label>Tutor</label>
-                        <input type="text" id="modalTutorName" readonly class="setting-input">
+                    <div class="modal-row">
+                        <div class="modal-field">
+                            <label>Tutor</label>
+                            <input type="text" id="modalTutorName" readonly class="setting-input modal-readonly">
+                        </div>
+                        <div class="modal-field">
+                            <label>Subject</label>
+                            <input type="text" id="modalSubject" readonly class="setting-input modal-readonly">
+                        </div>
                     </div>
-                    <div class="modal-field">
-                        <label>Subject</label>
-                        <input type="text" id="modalSubject" readonly class="setting-input">
+                    <div class="modal-field modal-rate-row">
+                        <label>Rate</label>
+                        <span id="modalRateDisplay" class="modal-rate-badge">$40/hr</span>
                     </div>
                     <div class="modal-field">
                         <label>Topic *</label>
@@ -213,14 +225,24 @@
                             <input type="time" id="modalTime" required>
                         </div>
                     </div>
-                    <div class="modal-field">
-                        <label>Duration</label>
-                        <select id="modalDuration">
-                            <option value="1 hour">1 hour</option>
-                            <option value="1.5 hours">1.5 hours</option>
-                            <option value="2 hours" selected>2 hours</option>
-                            <option value="3 hours">3 hours</option>
-                        </select>
+                    <div class="modal-row">
+                        <div class="modal-field">
+                            <label>Duration</label>
+                            <select id="modalDuration">
+                                <option value="1 hour">1 hour</option>
+                                <option value="1.5 hours">1.5 hours</option>
+                                <option value="2 hours" selected>2 hours</option>
+                                <option value="3 hours">3 hours</option>
+                            </select>
+                        </div>
+                        <div class="modal-field">
+                            <label>Level</label>
+                            <select id="modalLevel">
+                                <option value="Beginner">🟢 Beginner</option>
+                                <option value="Intermediate">🟡 Intermediate</option>
+                                <option value="Advanced">🔴 Advanced</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-field">
                         <label>Message (optional)</label>
