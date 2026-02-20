@@ -69,7 +69,7 @@ Tutify solves this problem by providing a centralized platform where:
 - MySQL
 
 ---
-
+[View Landing Page](index.html)
 ## 🧱 Project Structure
 
 ```text
@@ -96,3 +96,4 @@ Tutify/
 │   ├── dashboard.html
 │   └── bookings.html
 └── README.md
+
