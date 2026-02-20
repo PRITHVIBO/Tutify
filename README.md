@@ -69,6 +69,7 @@ Tutify solves this problem by providing a centralized platform where:
 - MySQL
 
 ---
+![Landing Page](images/landing-page.png)
 [View Landing Page](index.html)
 ## 🧱 Project Structure
 
