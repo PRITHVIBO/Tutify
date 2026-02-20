@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Tutify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Reuse same CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Tutify</h1>
+        <p>Login to your account</p>
+    </header>
+
+    <section>
+        <h2>Login</h2>
+
+        <form action="api/login.php" method="post" class="card">
+            <label>Email</label><br>
+            <input type="email" name="email" required><br><br>
+
+            <label>Password</label><br>
+            <input type="password" name="password" required><br><br>
+
+            <label>Login As</label><br>
+            <select name="role" required>
+                <option value="student">Student</option>
+                <option value="tutor">Tutor</option>
+            </select><br><br>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p style="text-align:center;margin-top:15px;">
+            New user? <a href="register.html">Register here</a>
+        </p>
+    </section>
+
+    <footer>
+        <p>© 2026 Tutify</p>
+    </footer>
+
+</body>
+
+</html>

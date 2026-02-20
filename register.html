@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Register | Tutify</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Reuse same CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Tutify</h1>
+        <p>Create a new account</p>
+    </header>
+
+    <section>
+        <h2>Register</h2>
+
+        <form action="api/register.php" method="post" class="card">
+            <label>Full Name</label><br>
+            <input type="text" name="name" required><br><br>
+
+            <label>Email</label><br>
+            <input type="email" name="email" required><br><br>
+
+            <label>Password</label><br>
+            <input type="password" name="password" required><br><br>
+
+            <label>Register As</label><br>
+            <select name="role" required>
+                <option value="student">Student</option>
+                <option value="tutor">Tutor</option>
+            </select><br><br>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p style="text-align:center;margin-top:15px;">
+            Already have an account? <a href="login.html">Login</a>
+        </p>
+    </section>
+
+    <footer>
+        <p>© 2026 Tutify</p>
+    </footer>
+
+</body>
+
+</html>
