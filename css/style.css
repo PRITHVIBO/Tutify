@@ -1250,7 +1250,8 @@ footer {
     transition: all 0.3s ease;
 }
 
-.tab-btn.active {
+/* Gradient active style only for legacy .tabs row */
+.tabs .tab-btn.active {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
 }
@@ -1445,12 +1446,20 @@ footer {
     transition: all 0.3s ease;
 }
 
-.tab-btn.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+/* Underline pill active style for .booking-tabs */
+.booking-tabs .tab-btn.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white !important;
+    border-bottom-color: transparent;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(91, 124, 250, 0.3);
 }
 
-.tab-btn:hover {
+.booking-tabs .tab-btn {
+    border-bottom: none;
+}
+
+.tab-btn:hover:not(.active) {
     color: var(--primary-color);
 }
 
