@@ -2089,3 +2089,567 @@ footer {
     border-radius: 20px;
     letter-spacing: 0.3px;
 }
+
+/* ==========================================================================
+   COMPREHENSIVE RESPONSIVE DESIGN
+   Breakpoints: 1200px | 1024px | 768px | 576px | 480px | 360px
+   ========================================================================== */
+
+/* ── Large Desktop (≤ 1200px) ─────────────────────────────────────────── */
+@media (max-width: 1200px) {
+    .dashboard-container {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .tutor-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+
+    .available-students-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+
+    .settings-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* ── Tablet Landscape (≤ 1024px) ──────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        grid-template-columns: 210px 1fr;
+        gap: 14px;
+    }
+
+    .sidebar {
+        padding: 16px;
+    }
+
+    .sidebar nav a {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .filter-group {
+        flex-wrap: wrap;
+    }
+
+    .filter-dropdown,
+    .filter-input {
+        min-width: 140px;
+    }
+
+    .settings-container {
+        grid-template-columns: 1fr;
+    }
+
+    .progress-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .student-list {
+        grid-template-columns: 1fr;
+    }
+
+    .available-students-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .features {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ── Tablet Portrait (≤ 768px) ────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+    /* Header */
+    header {
+        padding: 20px 15px;
+    }
+
+    header h1 {
+        font-size: 1.9em;
+    }
+
+    header p {
+        font-size: 0.9em;
+    }
+
+    /* Sections */
+    section {
+        padding: 25px 15px;
+    }
+
+    section h2 {
+        font-size: 1.5em;
+    }
+
+    /* Landing features – 2 columns on tablet */
+    .features {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    /* Buttons – centred column */
+    .buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .buttons a {
+        display: block;
+        width: 80%;
+        max-width: 300px;
+        text-align: center;
+        margin: 0;
+    }
+
+    /* Dashboard layout – sidebar stacks above main */
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .sidebar {
+        position: static;
+        padding: 16px;
+    }
+
+    .sidebar nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .sidebar nav a {
+        flex: 1 1 auto;
+        min-width: 110px;
+        text-align: center;
+        padding: 10px 8px;
+        font-size: 0.85em;
+        /* kill the translateX hover shift on touch */
+        transform: none !important;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+        transform: none !important;
+    }
+
+    .logout-btn {
+        margin-top: 12px;
+    }
+
+    /* Stats – 2 column grid */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 18px;
+    }
+
+    .stat-card h2 {
+        font-size: 2em;
+    }
+
+    /* Tutor grid – single column */
+    .tutor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Filters – stack vertically */
+    .filter-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filter-dropdown,
+    .filter-input,
+    .search-wrapper {
+        min-width: unset;
+        width: 100%;
+        flex: unset;
+    }
+
+    /* Main content padding */
+    .main-content {
+        padding: 20px;
+    }
+
+    /* Booking tabs – horizontally scrollable */
+    .booking-tabs {
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .booking-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .booking-tabs .tab-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 10px 14px;
+        font-size: 0.88em;
+    }
+
+    /* Booking card header stacks */
+    .booking-card-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .booking-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    /* Settings */
+    .settings-container {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Profile header */
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .profile-badges {
+        justify-content: center;
+    }
+
+    /* Progress stats */
+    .progress-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Student / available-student lists */
+    .student-list,
+    .available-students-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Booking details inside card */
+    .booking-details {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    /* Booking action buttons */
+    .booking-actions {
+        flex-direction: column;
+    }
+
+    .accept-btn,
+    .reject-btn,
+    .complete-btn {
+        width: 100%;
+    }
+
+    /* Forms */
+    form {
+        padding: 0 10px;
+    }
+}
+
+/* ── Large Mobile (≤ 576px) ───────────────────────────────────────────── */
+@media (max-width: 576px) {
+    header h1 {
+        font-size: 1.65em;
+    }
+
+    header p {
+        font-size: 0.85em;
+    }
+
+    /* Landing features – 1 column */
+    .features {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .card h3 {
+        font-size: 1.05em;
+    }
+
+    .buttons a {
+        width: 90%;
+    }
+
+    /* Stat card numbers slightly smaller */
+    .stat-card h2 {
+        font-size: 1.8em;
+    }
+
+    .stat-card p {
+        font-size: 0.85em;
+    }
+
+    /* Sidebar nav – 2 per row max */
+    .sidebar nav a {
+        min-width: calc(50% - 6px);
+        font-size: 0.8em;
+    }
+
+    /* Main content */
+    .main-content {
+        padding: 15px;
+    }
+
+    /* Tutor card */
+    .tutor-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2em;
+    }
+
+    .tutor-info h3 {
+        font-size: 1em;
+    }
+
+    /* Progress */
+    .progress-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .progress-stat h3 {
+        font-size: 1.6em;
+    }
+
+    /* User info in sidebar – centred */
+    .user-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    /* Booking card */
+    .booking-card {
+        padding: 12px;
+    }
+
+    /* Session header - stack */
+    .session-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    /* Legacy .tabs row */
+    .tabs {
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .tabs .tab-btn,
+    .booking-tabs .tab-btn {
+        padding: 8px 10px;
+        font-size: 0.82em;
+    }
+
+    /* Modal */
+    .modal-box {
+        margin: 8px;
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        padding: 16px 16px 12px;
+    }
+
+    .modal-body {
+        padding: 14px 16px;
+        gap: 10px;
+    }
+
+    .modal-footer {
+        padding: 12px 16px 16px;
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    .btn-modal-cancel,
+    .btn-modal-confirm {
+        width: 100%;
+        flex: unset;
+    }
+
+    .modal-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Small Mobile (≤ 480px) ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+    header {
+        padding: 16px 12px;
+    }
+
+    header h1 {
+        font-size: 1.4em;
+    }
+
+    section {
+        padding: 20px 12px;
+    }
+
+    section h2 {
+        font-size: 1.25em;
+    }
+
+    .dashboard-container {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 14px 10px;
+    }
+
+    .stat-card h2 {
+        font-size: 1.6em;
+        margin: 6px 0;
+    }
+
+    .stat-card p {
+        font-size: 0.8em;
+    }
+
+    .main-content {
+        padding: 12px;
+    }
+
+    .sidebar {
+        padding: 12px;
+    }
+
+    .sidebar nav a {
+        padding: 8px 6px;
+        font-size: 0.76em;
+        min-width: calc(50% - 4px);
+    }
+
+    .filter-section {
+        padding: 12px;
+    }
+
+    .book-btn {
+        padding: 12px;
+        font-size: 0.95em;
+    }
+
+    .progress-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .buttons a {
+        padding: 12px 20px;
+        font-size: 0.95em;
+    }
+
+    footer {
+        padding: 15px;
+        font-size: 0.82em;
+    }
+
+    /* Progress container */
+    .progress-container {
+        padding: 12px;
+    }
+
+    .progress-header {
+        padding: 20px;
+    }
+}
+
+/* ── Extra Small Mobile (≤ 360px) ─────────────────────────────────────── */
+@media (max-width: 360px) {
+    header h1 {
+        font-size: 1.2em;
+    }
+
+    header p {
+        font-size: 0.78em;
+    }
+
+    .stat-card h2 {
+        font-size: 1.35em;
+    }
+
+    .stat-card p {
+        font-size: 0.75em;
+    }
+
+    .sidebar nav {
+        gap: 4px;
+    }
+
+    .sidebar nav a {
+        font-size: 0.7em;
+        padding: 7px 4px;
+    }
+
+    .tutor-card {
+        padding: 12px;
+    }
+
+    .tutor-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1em;
+    }
+
+    .stats-grid {
+        gap: 6px;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    .booking-card {
+        padding: 10px;
+    }
+
+    .modal-box {
+        margin: 4px;
+    }
+
+    .modal-body {
+        padding: 12px;
+    }
+}

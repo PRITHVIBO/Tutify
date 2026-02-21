@@ -104,10 +104,12 @@
                 <h2>Session Bookings</h2>
                 <div class="bookings-container">
                     <div class="booking-tabs">
-                        <button class="tab-btn active" onclick="showTutorBookingTab('pending', this)">📩 Requests</button>
+                        <button class="tab-btn active" onclick="showTutorBookingTab('pending', this)">📩
+                            Requests</button>
                         <button class="tab-btn" onclick="showTutorBookingTab('confirmed', this)">✅ Confirmed</button>
                         <button class="tab-btn" onclick="showTutorBookingTab('completed', this)">📚 Completed</button>
                         <button class="tab-btn" onclick="showTutorBookingTab('cancelled', this)">❌ Cancelled</button>
+                        <button class="tab-btn" onclick="showTutorBookingTab('doubts', this)">💬 Student Doubts</button>
                     </div>
                     <div class="bookings-list" id="bookings-list">
                         <!-- Bookings will be loaded here -->
@@ -194,7 +196,8 @@
     </footer>
 
     <!-- ===== BOOKING MODAL (Tutor → Student) ===== -->
-    <div id="tutorBookingModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeTutorBookingModal()">
+    <div id="tutorBookingModal" class="modal-overlay" style="display:none;"
+        onclick="if(event.target===this)closeTutorBookingModal()">
         <div class="modal-box">
             <div class="modal-header">
                 <h3>📅 Schedule a Session</h3>
@@ -245,12 +248,60 @@
                     </div>
                     <div class="modal-field">
                         <label>Session Notes (optional)</label>
-                        <textarea id="tModalNotes" placeholder="Topics to cover, student level, special instructions..."></textarea>
+                        <textarea id="tModalNotes"
+                            placeholder="Topics to cover, student level, special instructions..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-modal-cancel" onclick="closeTutorBookingModal()">Cancel</button>
                     <button type="submit" class="btn-modal-confirm">📅 Schedule Session</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== TUTOR FEEDBACK MODAL ===== -->
+    <div id="tutorFeedbackModal" class="modal-overlay" style="display:none;"
+        onclick="if(event.target===this)closeTutorFeedbackModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>📝 Session Feedback for Student</h3>
+                <button class="modal-close" onclick="closeTutorFeedbackModal()">✕</button>
+            </div>
+            <form id="tfFeedbackForm" onsubmit="submitTutorFeedback(event)">
+                <div class="modal-body">
+                    <p style="color:var(--text-secondary-day); margin-bottom:4px;">Student: <strong id="tfStudentName"
+                            style="color:var(--primary-color);"></strong></p>
+                    <div class="modal-field">
+                        <label>Performance Rating</label>
+                        <select id="tfRating" class="setting-input">
+                            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                            <option value="4">⭐⭐⭐⭐ Good</option>
+                            <option value="3">⭐⭐⭐ Average</option>
+                            <option value="2">⭐⭐ Needs Improvement</option>
+                            <option value="1">⭐ Poor Attendance / Effort</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label>Strengths Observed</label>
+                        <input type="text" id="tfStrengths" class="setting-input"
+                            placeholder="e.g. Quick problem-solving, good conceptual grasp">
+                    </div>
+                    <div class="modal-field">
+                        <label>Areas to Improve</label>
+                        <input type="text" id="tfImprovements" class="setting-input"
+                            placeholder="e.g. Practice more integration problems">
+                    </div>
+                    <div class="modal-field">
+                        <label>Detailed Feedback &amp; Suggestions *</label>
+                        <textarea id="tfNotes" class="setting-input" rows="4"
+                            placeholder="Write detailed feedback, homework suggestions, or encouragement for the student..."
+                            required style="padding:10px; resize:vertical;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" onclick="skipTutorFeedback()">Skip</button>
+                    <button type="submit" class="btn-modal-confirm">📤 Send Feedback</button>
                 </div>
             </form>
         </div>

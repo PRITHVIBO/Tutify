@@ -560,11 +560,11 @@ function loadDashboardData() {
     const user = getCurrentUser();
     if (!user) return;
     const bookings = getStudentBookings(user.email);
-    const total    = bookings.length;
+    const total = bookings.length;
     const completed = bookings.filter(b => b.status === 'completed').length;
     // count confirmed + pending as upcoming
-    const upcoming  = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
-    const rated     = bookings.filter(b => b.rating && b.rating > 0);
+    const upcoming = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
+    const rated = bookings.filter(b => b.rating && b.rating > 0);
     const avg = rated.length
         ? (rated.reduce((s, b) => s + b.rating, 0) / rated.length).toFixed(1)
         : '—';
@@ -589,6 +589,10 @@ function loadTutors() {
     ];
 
     window.allTutors = tutors;
+    // Clear any browser-autofilled value before rendering so the email never
+    // leaks into the search field and wipes out the tutor list.
+    const searchEl = document.getElementById('searchTutor');
+    if (searchEl) searchEl.value = '';
     filterTutors();
 }
 
@@ -607,9 +611,9 @@ function displayTutors(tutors) {
         const isBusy = tutor.availability === 'Busy';
         const rate = tutor.rate ? '$' + tutor.rate + '/hr' : '$40/hr';
         const availColor = isBusy ? 'var(--warning-color)' : 'var(--success-color)';
-        const availIcon  = isBusy ? '⏰' : '✅';
-        const btnClass   = isBusy ? 'book-btn book-btn-busy' : 'book-btn';
-        const btnLabel   = isBusy ? '⏰ Request Session' : '📅 Book Session';
+        const availIcon = isBusy ? '⏰' : '✅';
+        const btnClass = isBusy ? 'book-btn book-btn-busy' : 'book-btn';
+        const btnLabel = isBusy ? '⏰ Request Session' : '📅 Book Session';
         const card = document.createElement('div');
         card.className = 'tutor-card';
         card.innerHTML = `
@@ -636,6 +640,11 @@ function displayTutors(tutors) {
 }
 
 function filterTutors() {
+    // Guard: if tutors haven't been loaded yet, load them first and let loadTutors call filterTutors
+    if (!window.allTutors || window.allTutors.length === 0) {
+        if (typeof loadTutors === 'function') loadTutors();
+        return;
+    }
     const subject = document.getElementById('subjectFilter').value.toLowerCase();
     const search = (document.getElementById('searchTutor')?.value || '').toLowerCase();
     const minRating = parseFloat(document.getElementById('ratingFilter').value) || 0;
@@ -763,27 +772,27 @@ function closeBookingModal() {
 
 function submitStudentBooking(event) {
     event.preventDefault();
-    const form      = document.getElementById('bookingForm');
+    const form = document.getElementById('bookingForm');
     const tutorName = form.dataset.tutorName;
-    const user      = getCurrentUser();
+    const user = getCurrentUser();
 
     const booking = {
-        id:           Date.now(),
-        studentName:  user ? (user.name || user.email) : 'Student',
+        id: Date.now(),
+        studentName: user ? (user.name || user.email) : 'Student',
         studentEmail: user ? user.email : '',
-        tutorName:    tutorName,
-        subject:      document.getElementById('modalSubject').value,
-        topic:        document.getElementById('modalTopic').value,
-        date:         document.getElementById('modalDate').value,
-        time:         formatTime12(document.getElementById('modalTime').value),
-        duration:     document.getElementById('modalDuration').value,
-        message:      document.getElementById('modalMessage').value,
-        rate:         (() => { const t = (window.allTutors || []).find(x => x.id === parseInt(form.dataset.tutorId)); return t?.rate ? `$${t.rate}` : '$40'; })(),
-        level:        document.getElementById('modalLevel')?.value || 'Beginner',
-        status:       'pending',   // tutor must accept
-        bookedBy:     'student',
-        rating:       0,
-        createdAt:    new Date().toISOString()
+        tutorName: tutorName,
+        subject: document.getElementById('modalSubject').value,
+        topic: document.getElementById('modalTopic').value,
+        date: document.getElementById('modalDate').value,
+        time: formatTime12(document.getElementById('modalTime').value),
+        duration: document.getElementById('modalDuration').value,
+        message: document.getElementById('modalMessage').value,
+        rate: (() => { const t = (window.allTutors || []).find(x => x.id === parseInt(form.dataset.tutorId)); return t?.rate ? `$${t.rate}` : '$40'; })(),
+        level: document.getElementById('modalLevel')?.value || 'Beginner',
+        status: 'pending',   // tutor must accept
+        bookedBy: 'student',
+        rating: 0,
+        createdAt: new Date().toISOString()
     };
 
     const all = getGlobalBookings();
@@ -819,6 +828,15 @@ function showSection(section) {
     } else {
         const dashEl = document.getElementById('dashboard-section');
         if (dashEl) dashEl.style.display = 'block';
+        // Always clear any autofilled/stale search value before re-rendering
+        const searchEl = document.getElementById('searchTutor');
+        if (searchEl) searchEl.value = '';
+        // Always re-render tutors when returning to dashboard so Book buttons are never missing
+        if (window.allTutors && window.allTutors.length > 0) {
+            filterTutors();
+        } else {
+            loadTutors();
+        }
     }
     return false;
 }
@@ -827,7 +845,11 @@ function showSection(section) {
 function showBookingTab(tab, btnEl) {
     document.querySelectorAll('#bookings-section .tab-btn').forEach(t => t.classList.remove('active'));
     if (btnEl) btnEl.classList.add('active');
-    loadBookingsByTab(tab);
+    if (tab === 'doubts') {
+        loadStudentDoubts();
+    } else {
+        loadBookingsByTab(tab);
+    }
 }
 
 function loadBookings() {
@@ -844,7 +866,7 @@ function loadBookingsByTab(tab) {
     bookingsList.innerHTML = '';
 
     if (filtered.length === 0) {
-        const labels = { pending:'pending', confirmed:'confirmed', completed:'completed', cancelled:'cancelled' };
+        const labels = { pending: 'pending', confirmed: 'confirmed', completed: 'completed', cancelled: 'cancelled' };
         bookingsList.innerHTML = `
             <div class="empty-state">
                 <div style="font-size:2.5em; margin-bottom:10px;">📭</div>
@@ -854,19 +876,35 @@ function loadBookingsByTab(tab) {
     }
 
     filtered.forEach(booking => {
-        const isConfirmed  = booking.status === 'confirmed';
-        const isPending    = booking.status === 'pending';
-        const isCompleted  = booking.status === 'completed';
-        const isCancelled  = booking.status === 'cancelled';
+        const isConfirmed = booking.status === 'confirmed';
+        const isPending = booking.status === 'pending';
+        const isCompleted = booking.status === 'completed';
+        const isCancelled = booking.status === 'cancelled';
 
         const statusMap = {
-            pending:   { label:'⏳ Awaiting Tutor', cls:'status-pending' },
-            confirmed: { label:'✅ Confirmed',       cls:'status-confirmed' },
-            completed: { label:'📚 Completed',       cls:'status-completed' },
-            cancelled: { label:'❌ Cancelled',       cls:'status-cancelled' }
+            pending: { label: '⏳ Awaiting Tutor', cls: 'status-pending' },
+            confirmed: { label: '✅ Confirmed', cls: 'status-confirmed' },
+            completed: { label: '📚 Completed', cls: 'status-completed' },
+            cancelled: { label: '❌ Cancelled', cls: 'status-cancelled' }
         };
         const s = statusMap[booking.status] || { label: booking.status, cls: '' };
 
+        // Tutor feedback display for completed bookings
+        const tfb = booking.tutorFeedback;
+        const tfbHtml = isCompleted
+            ? (tfb
+                ? '<div style="margin-top:12px; padding:14px; background:rgba(91,124,250,0.07); border-left:4px solid var(--primary-color); border-radius:8px;">'
+                + '<p style="font-weight:700; color:var(--primary-color); margin-bottom:8px;">📝 Tutor Feedback:</p>'
+                + (tfb.strengths ? '<p style="margin-bottom:4px;"><strong>💪 Strengths:</strong> ' + tfb.strengths + '</p>' : '')
+                + (tfb.improvements ? '<p style="margin-bottom:4px;"><strong>📈 Improve:</strong> ' + tfb.improvements + '</p>' : '')
+                + '<p style="margin-bottom:4px;"><strong>📋 Notes:</strong> ' + tfb.notes + '</p>'
+                + '<p><strong>🎯 Performance:</strong> ' + '⭐'.repeat(tfb.rating) + '</p>'
+                + '</div>'
+                : '<p style="font-size:0.85em; color:var(--text-secondary-day); margin-top:8px; padding:4px 2px;">⏳ Awaiting tutor feedback...</p>')
+            : '';
+        const reviewBtn = booking.rating
+            ? '<span style="color:var(--warning-color); font-weight:600;">⭐ ' + booking.rating + '/5 — Rating submitted</span>'
+            : '<button class="btn-primary" onclick="leaveReview(' + booking.id + ', \'' + booking.tutorName + '\')">\u2b50 Leave Review</button>';
         const actions = isPending ? `
             <div class="booking-actions">
                 <button class="btn-danger" onclick="cancelStudentBooking(${booking.id})">❌ Cancel Request</button>
@@ -875,10 +913,7 @@ function loadBookingsByTab(tab) {
             <div class="booking-actions">
                 <button class="btn-danger" onclick="cancelStudentBooking(${booking.id})">❌ Cancel Session</button>
             </div>` :
-            isCompleted ? `
-            <div class="booking-actions">
-                <button class="btn-primary" onclick="leaveReview(${booking.id}, '${booking.tutorName}')">⭐ Leave Review</button>
-            </div>` : '';
+                isCompleted ? '<div class="booking-actions">' + reviewBtn + '</div>' + tfbHtml : '';
 
         const div = document.createElement('div');
         div.className = 'booking-card';
@@ -1314,27 +1349,27 @@ function closeTutorBookingModal() {
 
 function submitTutorBooking(event) {
     event.preventDefault();
-    const form        = document.getElementById('tutorBookingForm');
+    const form = document.getElementById('tutorBookingForm');
     const studentName = form.dataset.studentName;
-    const user        = getCurrentUser();
-    const subject     = document.getElementById('tModalSubject').value;
-    const topic       = document.getElementById('tModalTopic').value;
-    const date        = document.getElementById('tModalDate').value;
-    const time        = formatTime12(document.getElementById('tModalTime').value);
-    const duration    = document.getElementById('tModalDuration').value;
-    const notes       = document.getElementById('tModalNotes').value;
+    const user = getCurrentUser();
+    const subject = document.getElementById('tModalSubject').value;
+    const topic = document.getElementById('tModalTopic').value;
+    const date = document.getElementById('tModalDate').value;
+    const time = formatTime12(document.getElementById('tModalTime').value);
+    const duration = document.getElementById('tModalDuration').value;
+    const notes = document.getElementById('tModalNotes').value;
 
     const booking = {
-        id:           Date.now(),
-        studentName:  studentName,
+        id: Date.now(),
+        studentName: studentName,
         studentEmail: '',          // tutor-initiated; student email not known here
-        tutorName:    user ? (user.name || user.email) : 'Tutor',
+        tutorName: user ? (user.name || user.email) : 'Tutor',
         subject, topic, date, time, duration,
-        message:   notes,
-        rate:      '$40',
-        status:    'confirmed',    // tutor-initiated = auto-confirmed
-        bookedBy:  'tutor',
-        rating:    0,
+        message: notes,
+        rate: '$40',
+        status: 'confirmed',    // tutor-initiated = auto-confirmed
+        bookedBy: 'tutor',
+        rating: 0,
         createdAt: new Date().toISOString()
     };
 
@@ -1378,7 +1413,11 @@ function loadTutorBookingsSection() {
 function showTutorBookingTab(tab, btnEl) {
     document.querySelectorAll('#bookings-section .tab-btn').forEach(b => b.classList.remove('active'));
     if (btnEl) btnEl.classList.add('active');
-    loadTutorBookingsByTab(tab);
+    if (tab === 'doubts') {
+        loadTutorDoubts();
+    } else {
+        loadTutorBookingsByTab(tab);
+    }
 }
 
 function loadTutorBookingsByTab(tab) {
@@ -1388,14 +1427,14 @@ function loadTutorBookingsByTab(tab) {
     if (!user) return;
 
     const tutorName = user.name || user.email;
-    const all     = getTutorBookings(tutorName);
-    const items   = all.filter(b => b.status === tab);
+    const all = getTutorBookings(tutorName);
+    const items = all.filter(b => b.status === tab);
 
     list.innerHTML = '';
 
     if (items.length === 0) {
         const emptyMsg = {
-            pending:   'No pending requests from students.',
+            pending: 'No pending requests from students.',
             confirmed: 'No confirmed sessions yet.',
             completed: 'No completed sessions.',
             cancelled: 'No cancelled sessions.'
@@ -1413,7 +1452,7 @@ function loadTutorBookingsByTab(tab) {
         div.className = `booking-item booking-${tab}`;
 
         const statusMap = {
-            pending:   '<span class="booking-status status-pending">⏳ Awaiting Response</span>',
+            pending: '<span class="booking-status status-pending">⏳ Awaiting Response</span>',
             confirmed: '<span class="booking-status status-confirmed">✅ Confirmed</span>',
             completed: '<span class="booking-status status-completed">📚 Completed</span>',
             cancelled: '<span class="booking-status status-rejected">❌ Cancelled</span>'
@@ -1441,7 +1480,7 @@ function loadTutorBookingsByTab(tab) {
         }
 
         const displayDate = (() => {
-            try { return new Date(booking.date).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }); }
+            try { return new Date(booking.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
             catch { return booking.date; }
         })();
 
@@ -1502,13 +1541,218 @@ function rejectBooking(id, studentName) {
 }
 
 function completeBooking(id, studentName) {
-    if (!confirm(`Mark session with ${studentName} as complete?`)) return;
+    if (!confirm(`Mark session with ${studentName} as complete? You will be able to leave feedback for the student.`)) return;
+    // Mark completed first, then open feedback modal
     const all = getGlobalBookings();
     const idx = all.findIndex(b => b.id === id);
     if (idx !== -1) all[idx].status = 'completed';
     saveGlobalBookings(all);
     loadTutorBookingsByTab('confirmed');
     showToast(`📚 Session with ${studentName} marked as completed!`, 'success');
+    // Open feedback modal
+    openTutorFeedbackModal(id, studentName);
+}
+
+// ── TUTOR FEEDBACK (after session complete) ────────────────────────────
+function openTutorFeedbackModal(bookingId, studentName) {
+    const modal = document.getElementById('tutorFeedbackModal');
+    if (!modal) return;
+    const nameEl = document.getElementById('tfStudentName');
+    if (nameEl) nameEl.textContent = studentName;
+    document.getElementById('tfFeedbackForm').dataset.bookingId = bookingId;
+    document.getElementById('tfRating').value = '5';
+    document.getElementById('tfStrengths').value = '';
+    document.getElementById('tfImprovements').value = '';
+    document.getElementById('tfNotes').value = '';
+    modal.style.display = 'flex';
+}
+
+function closeTutorFeedbackModal() {
+    const modal = document.getElementById('tutorFeedbackModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function skipTutorFeedback() {
+    closeTutorFeedbackModal();
+    showToast('ℹ️ Feedback skipped. You can still add it later from Completed tab.', 'info');
+}
+
+function submitTutorFeedback(event) {
+    event.preventDefault();
+    const form = document.getElementById('tfFeedbackForm');
+    const id = parseInt(form.dataset.bookingId);
+    const rating = parseInt(document.getElementById('tfRating').value);
+    const strengths = document.getElementById('tfStrengths').value.trim();
+    const improvements = document.getElementById('tfImprovements').value.trim();
+    const notes = document.getElementById('tfNotes').value.trim();
+
+    const all = getGlobalBookings();
+    const idx = all.findIndex(b => b.id === id);
+    if (idx !== -1) {
+        all[idx].tutorFeedback = { rating, strengths, improvements, notes, sentAt: new Date().toISOString() };
+    }
+    saveGlobalBookings(all);
+    closeTutorFeedbackModal();
+    const studentName = all[idx]?.studentName || 'student';
+    showToast(`📤 Feedback sent to ${studentName}!`, 'success');
+}
+
+// ── DOUBT / QnA SYSTEM ─────────────────────────────────────────────────
+const DOUBTS_KEY = 'tutify_doubts';
+function getDoubts() { return JSON.parse(localStorage.getItem(DOUBTS_KEY) || '[]'); }
+function saveDoubts(d) { localStorage.setItem(DOUBTS_KEY, JSON.stringify(d)); }
+function getStudentDoubts(email) { return getDoubts().filter(d => d.studentEmail === email); }
+function getTutorDoubts(tutorName) { return getDoubts().filter(d => d.tutorName === tutorName); }
+
+function submitDoubt(event) {
+    event.preventDefault();
+    const user = getCurrentUser();
+    const tutorName = document.getElementById('doubtTutor').value;
+    const subject = document.getElementById('doubtSubject').value;
+    const question = document.getElementById('doubtQuestion').value.trim();
+    const urgency = document.getElementById('doubtUrgency').value;
+    if (!tutorName || !subject || !question) return;
+    const doubt = {
+        id: Date.now(),
+        studentName: user ? (user.name || user.email) : 'Student',
+        studentEmail: user ? user.email : '',
+        tutorName,
+        subject,
+        question,
+        urgency,
+        status: 'open',
+        createdAt: new Date().toISOString(),
+        reply: null,
+        repliedAt: null
+    };
+    const all = getDoubts();
+    all.push(doubt);
+    saveDoubts(all);
+    document.getElementById('doubtQuestion').value = '';
+    loadStudentDoubts();
+    showToast('❓ Doubt submitted! Your tutor will respond soon.', 'info');
+}
+
+function loadStudentDoubts() {
+    const user = getCurrentUser();
+    if (!user) return;
+    const container = document.getElementById('bookings-list');
+    if (!container) return;
+    const doubts = [...getStudentDoubts(user.email)].reverse();
+    const tutorOptions = (window.allTutors || []).map(t =>
+        '<option value="' + t.name + '">' + t.name + ' (' + t.subject + ')</option>'
+    ).join('');
+    const urgIcon = { Normal: '🟢', High: '🟡', Urgent: '🔴' };
+
+    const doubtCards = doubts.map(d => {
+        const replyHtml = d.reply
+            ? '<div style="margin-top:12px; padding:12px; background:rgba(16,185,129,0.08); border-left:4px solid var(--success-color); border-radius:8px;">'
+            + '<p style="font-weight:700; color:var(--success-color); margin-bottom:4px;">💬 Tutor Reply:</p>'
+            + '<p>' + d.reply + '</p>'
+            + '<p style="font-size:0.78em; color:var(--text-secondary-day); margin-top:4px;">' + new Date(d.repliedAt).toLocaleString() + '</p>'
+            + '</div>'
+            : '<p style="font-size:0.83em; color:var(--text-secondary-day); margin-top:6px;">⏳ Waiting for tutor reply...</p>';
+        const urgHtml = d.urgency !== 'Normal'
+            ? '<p style="font-size:0.83em; font-weight:600; margin-top:4px;">' + (urgIcon[d.urgency] || '') + ' Priority: ' + d.urgency + '</p>'
+            : '';
+        const badge = d.status === 'answered'
+            ? '<span class="status-badge status-confirmed" style="white-space:nowrap;">✅ Answered</span>'
+            : '<span class="status-badge status-pending" style="white-space:nowrap;">⏳ Open</span>';
+        return '<div class="booking-card" style="margin-bottom:12px;">'
+            + '<div class="booking-card-header">'
+            + '<div class="booking-info">'
+            + '<h4>❓ ' + d.question + '</h4>'
+            + '<p><strong>👨‍🏫 Tutor:</strong> ' + d.tutorName + ' &nbsp;|&nbsp; <strong>📚 Subject:</strong> ' + d.subject + '</p>'
+            + '<p style="font-size:0.82em; color:var(--text-secondary-day);">' + new Date(d.createdAt).toLocaleString() + '</p>'
+            + '</div>' + badge + '</div>'
+            + urgHtml + replyHtml + '</div>';
+    }).join('');
+
+    container.innerHTML =
+        '<div style="margin-bottom:20px; padding:18px; background:rgba(91,124,250,0.05); border-radius:12px; border:2px solid rgba(91,124,250,0.15);">'
+        + '<h4 style="color:var(--primary-color); margin-bottom:14px;">🙋 Ask a Doubt</h4>'
+        + '<form onsubmit="submitDoubt(event)" style="display:flex; flex-direction:column; gap:10px;">'
+        + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
+        + '<select id="doubtTutor" class="setting-input" required><option value="">— Select Tutor —</option>' + tutorOptions + '</select>'
+        + '<select id="doubtSubject" class="setting-input" required>'
+        + '<option value="">— Subject —</option>'
+        + '<option value="Mathematics">📐 Mathematics</option>'
+        + '<option value="Physics">⚛️ Physics</option>'
+        + '<option value="Chemistry">🧪 Chemistry</option>'
+        + '<option value="Biology">🔬 Biology</option>'
+        + '<option value="English">📖 English</option>'
+        + '<option value="Computer Science">💻 Computer Science</option>'
+        + '<option value="History">📚 History</option>'
+        + '</select></div>'
+        + '<select id="doubtUrgency" class="setting-input">'
+        + '<option value="Normal">🟢 Normal</option>'
+        + '<option value="High">🟡 High Priority</option>'
+        + '<option value="Urgent">🔴 Urgent</option>'
+        + '</select>'
+        + '<textarea id="doubtQuestion" class="setting-input" rows="3" placeholder="Describe your doubt clearly... (e.g. I don&#39;t understand integration by parts)" required style="padding:10px; resize:vertical;"></textarea>'
+        + '<button type="submit" class="btn-primary" style="align-self:flex-end; padding:10px 24px;">📤 Submit Doubt</button>'
+        + '</form></div>'
+        + (doubts.length === 0
+            ? '<div class="empty-state"><div style="font-size:2.5em; margin-bottom:10px;">💬</div><p style="color:var(--text-secondary-day);">No doubts yet. Ask your first question above!</p></div>'
+            : '<h4 style="font-weight:700; margin-bottom:12px;">📋 My Doubts (' + doubts.length + ')</h4>' + doubtCards);
+}
+
+function loadTutorDoubts() {
+    const user = getCurrentUser();
+    if (!user) return;
+    const container = document.getElementById('bookings-list');
+    if (!container) return;
+    const tutorName = user.name || user.email;
+    const doubts = [...getTutorDoubts(tutorName)].reverse();
+    const urgIcon = { Normal: '🟢', High: '🟡', Urgent: '🔴' };
+
+    if (doubts.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div style="font-size:2.5em; margin-bottom:10px;">💬</div>'
+            + '<p style="color:var(--text-secondary-day);">No student doubts received yet.</p></div>';
+        return;
+    }
+
+    const cards = doubts.map(d => {
+        const replyHtml = d.reply
+            ? '<div style="margin-top:10px; padding:10px; background:rgba(16,185,129,0.08); border-left:4px solid var(--success-color); border-radius:8px;">'
+            + '<strong style="color:var(--success-color);">Your reply:</strong> ' + d.reply
+            + '<p style="font-size:0.78em; color:var(--text-secondary-day); margin-top:4px;">' + new Date(d.repliedAt).toLocaleString() + '</p></div>'
+            : '<div class="booking-actions" style="margin-top:10px;">'
+            + '<button class="accept-btn" onclick="replyToDoubt(' + d.id + ')">💬 Reply to Student</button></div>';
+        const urgHtml = d.urgency !== 'Normal'
+            ? '<p style="font-size:0.83em; font-weight:600; margin-top:4px;">' + (urgIcon[d.urgency] || '') + ' ' + d.urgency + ' Priority</p>'
+            : '';
+        const badge = d.status === 'answered'
+            ? '<span class="status-badge status-confirmed">✅ Answered</span>'
+            : '<span class="status-badge status-pending">⏳ Open</span>';
+        return '<div class="booking-item" style="margin-bottom:12px;">'
+            + '<div class="booking-header">'
+            + '<div class="student-details">'
+            + '<div class="student-avatar">' + (d.studentName[0] || '?') + '</div>'
+            + '<div><div class="booking-title">' + d.studentName + '</div>'
+            + '<p style="color:var(--text-secondary-day); margin:4px 0;">❓ ' + d.question + '</p>'
+            + '<p style="font-size:0.82em; color:var(--text-secondary-day);">'
+            + '📚 ' + d.subject + ' &nbsp;|&nbsp; ' + new Date(d.createdAt).toLocaleString() + '</p></div></div>'
+            + badge + '</div>'
+            + urgHtml + replyHtml + '</div>';
+    }).join('');
+
+    container.innerHTML = '<h4 style="font-weight:700; margin-bottom:14px;">📩 Student Doubts (' + doubts.length + ')</h4>' + cards;
+}
+
+function replyToDoubt(id) {
+    const reply = prompt('Enter your reply for the student:');
+    if (!reply || !reply.trim()) return;
+    const all = getDoubts();
+    const idx = all.findIndex(d => d.id === id);
+    if (idx !== -1) {
+        all[idx].reply = reply.trim();
+        all[idx].status = 'answered';
+        all[idx].repliedAt = new Date().toISOString();
+    }
+    saveDoubts(all);
+    loadTutorDoubts();
+    showToast('✅ Reply sent to student!', 'success');
 }
 
 // Legacy shim — tutor/bookings.html still calls loadTutorBookings on load
